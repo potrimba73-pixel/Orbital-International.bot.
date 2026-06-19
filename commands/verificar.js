@@ -8,7 +8,7 @@ module.exports = {
 
   async execute(interaction) {
     const memberRoleId = process.env.MEMBER_ROLE_ID;
-
+    
     if (!memberRoleId || memberRoleId === 'your_member_role_id_here') {
       return await interaction.reply({
         content: '❌ Member role not configured.',
@@ -24,10 +24,9 @@ module.exports = {
       .setTitle('✅ Verification Status')
       .setColor(0x57F287)
       .addFields(
-        { name: '✅ Verified', value: `${verifiedMembers.size} members`, inline: true },
-        { name: '⏳ Unverified', value: `${unverifiedMembers.size} members`, inline: true },
-        { name: 'Unverified Users', value: unverifiedMembers.size > 0 ? unverifiedMembers.map(m => m.user.tag).join('
-').substring(0, 1024) : 'All verified!' }
+        { name: '✅ Verified', value: verifiedMembers.size + ' members', inline: true },
+        { name: '⏳ Unverified', value: unverifiedMembers.size + ' members', inline: true },
+        { name: 'Unverified Users', value: unverifiedMembers.size > 0 ? unverifiedMembers.map(m => m.user.tag).join('\n').substring(0, 1024) : 'All verified!' }
       )
       .setTimestamp();
 
