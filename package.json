@@ -1,0 +1,20 @@
+{
+  "name": "orbital-international-bot",
+  "version": "3.1.0",
+  "description": "Orbital-International Discord Bot - Language learning, anonymity, international community",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js",
+    "build": "npm install && node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.0.0",
+    "@iamtraction/google-translate": "^2.0.1"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
