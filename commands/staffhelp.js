@@ -8,28 +8,28 @@ module.exports = {
 
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setTitle('Staff Commands - Orbital International')
+      .setTitle('🛡️ Staff Commands - Orbital International')
       .setDescription('Restricted commands for server moderation')
       .setColor(0xED4245)
       .addFields(
         { 
-          name: 'Moderation',
-          value: '/limpar - Clear messages\n/anuncio - Send announcement\n/verificar - Check who accepted rules',
+          name: '📋 Moderation',
+          value: '`/limpar` - Clear messages\n`/anuncio` - Send announcement\n`/verificar` - Check who accepted rules',
           inline: false 
         },
         { 
-          name: 'Setup',
-          value: '/setupchannels - Auto-create language channels\n/regras - Send rules panel',
+          name: '🔧 Setup',
+          value: '`/setupchannels` - Auto-create language channels\n`/regras` - Send rules panel',
           inline: false 
         },
         { 
-          name: 'User Info',
-          value: '/userinfo - Show detailed user info (age role, language, privacy)\n/canalinfo - Voice channel info\n/serverinfo - Show all server IDs',
+          name: '👤 User Info',
+          value: '`/userinfo` - Show detailed user info (age role, language, privacy)\n`/canalinfo` - Voice channel info\n`/serverinfo` - Show all server IDs',
           inline: false 
         },
         { 
-          name: 'Bot',
-          value: '/ping - Check bot latency',
+          name: '⚙️ Bot',
+          value: '`/ping` - Check bot latency',
           inline: false 
         }
       )
