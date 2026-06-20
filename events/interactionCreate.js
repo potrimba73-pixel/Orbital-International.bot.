@@ -1,4 +1,6 @@
-const { Events, InteractionType, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits } = require('discord.js');
+const { Events, InteractionType, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, AttachmentBuilder } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 
 // ─── ROLE IDs ───
 const ROLE_IDS = {
@@ -77,6 +79,7 @@ const ROLE_NAMES = {
 // ─── TICKET CONFIG ───
 const TICKET_CATEGORY_ID = '1515381294261862571';
 const STAFF_ROLE_ID = '1515151599503282227';
+const LOGS_CHANNEL_ID = '1515419876859314306';
 
 const TICKET_LABELS = {
   general: '👤 General Support',
@@ -112,7 +115,7 @@ module.exports = {
         return;
       }
       if (interaction.customId === 'ticket_create') {
-        await handleTicketCreate(interaction);
+        await handleTicketCreate(interaction, client);
         return;
       }
     }
@@ -124,7 +127,7 @@ module.exports = {
         if (interaction.customId === 'verify_member') {
           await handleVerification(interaction);
         } else if (interaction.customId === 'ticket_close') {
-          await handleTicketClose(interaction);
+          await handleTicketClose(interaction, client);
         }
       } catch (error) {
         console.error('Button interaction error:', error.message);
@@ -197,14 +200,13 @@ async function handleOnboarding(interaction) {
 }
 
 // ─── TICKET CREATE HANDLER ───
-async function handleTicketCreate(interaction) {
+async function handleTicketCreate(interaction, client) {
   const member = interaction.member;
   const reason = interaction.values[0];
   const guild = interaction.guild;
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-  // Check if user already has an open ticket
   const existingTicket = guild.channels.cache.find(ch => 
     ch.name === `ticket-${member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`
   );
@@ -260,6 +262,17 @@ async function handleTicketCreate(interaction) {
       content: `✅ Your ticket has been created: ${ticketChannel}`
     });
 
+    // Log to logs channel
+    const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
+    if (logsChannel) {
+      const logEmbed = new EmbedBuilder()
+        .setTitle('🎫 Ticket Created')
+        .setDescription(`**User:** ${member.user.tag} (${member.id})\n**Reason:** ${TICKET_LABELS[reason]}\n**Channel:** ${ticketChannel}`)
+        .setColor(0x57F287)
+        .setTimestamp();
+      await logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
+    }
+
   } catch (err) {
     console.error('Ticket creation error:', err);
     await interaction.editReply({
@@ -269,8 +282,9 @@ async function handleTicketCreate(interaction) {
 }
 
 // ─── TICKET CLOSE HANDLER ───
-async function handleTicketClose(interaction) {
+async function handleTicketClose(interaction, client) {
   const channel = interaction.channel;
+  const member = interaction.member;
 
   if (!channel.name.startsWith('ticket-')) {
     return interaction.reply({
@@ -280,14 +294,188 @@ async function handleTicketClose(interaction) {
   }
 
   await interaction.reply({
-    content: '🔒 Closing ticket in 5 seconds...'
+    content: '🔒 Generating transcript and closing ticket...'
   });
 
-  setTimeout(async () => {
-    await channel.delete().catch(err => {
-      console.error('Failed to delete ticket channel:', err);
+  try {
+    // Fetch all messages
+    let allMessages = [];
+    let lastId = null;
+    let fetched;
+
+    do {
+      const options = { limit: 100 };
+      if (lastId) options.before = lastId;
+      fetched = await channel.messages.fetch(options);
+      allMessages = allMessages.concat(Array.from(fetched.values()));
+      if (fetched.size > 0) lastId = fetched.last().id;
+    } while (fetched.size === 100);
+
+    // Reverse to chronological order
+    allMessages.reverse();
+
+    const ticketName = channel.name;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const baseFileName = `${ticketName}_${timestamp}`;
+
+    // ─── GENERATE TXT TRANSCRIPT ───
+    let txtContent = `========================================\n`;
+    txtContent += `  ORBITAL INTERNATIONAL - TICKET TRANSCRIPT\n`;
+    txtContent += `========================================\n`;
+    txtContent += `Channel: ${channel.name}\n`;
+    txtContent += `Closed by: ${member.user.tag} (${member.id})\n`;
+    txtContent += `Date: ${new Date().toUTCString()}\n`;
+    txtContent += `Messages: ${allMessages.length}\n`;
+    txtContent += `========================================\n\n`;
+
+    for (const msg of allMessages) {
+      const time = msg.createdAt.toUTCString();
+      const author = msg.author.tag;
+      const content = msg.content || '[No text content]';
+      txtContent += `[${time}] ${author}:\n${content}\n`;
+      if (msg.attachments.size > 0) {
+        txtContent += `[Attachments: ${msg.attachments.map(a => a.url).join(', ')}]\n`;
+      }
+      txtContent += `\n`;
+    }
+
+    txtContent += `========================================\n`;
+    txtContent += `End of transcript\n`;
+    txtContent += `========================================\n`;
+
+    // ─── GENERATE HTML TRANSCRIPT ───
+    let htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Transcript - ${ticketName}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #36393f; color: #dcddde; min-height: 100vh; }
+    .header { background: #2f3136; padding: 20px; border-bottom: 1px solid #202225; text-align: center; }
+    .header h1 { color: #fff; font-size: 24px; margin-bottom: 10px; }
+    .header .meta { color: #b9bbbe; font-size: 14px; }
+    .messages { padding: 20px; max-width: 900px; margin: 0 auto; }
+    .message { display: flex; margin-bottom: 16px; padding: 8px; border-radius: 4px; }
+    .message:hover { background: rgba(255,255,255,0.02); }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
+    .content { flex: 1; }
+    .author { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+    .timestamp { color: #72767d; font-size: 12px; margin-left: 8px; font-weight: normal; }
+    .text { color: #dcddde; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+    .attachments { margin-top: 4px; }
+    .attachments a { color: #00b0f4; text-decoration: none; }
+    .attachments a:hover { text-decoration: underline; }
+    .footer { background: #2f3136; padding: 15px; text-align: center; color: #72767d; font-size: 12px; border-top: 1px solid #202225; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🌌 ORBITAL INTERNATIONAL - TICKET TRANSCRIPT</h1>
+    <div class="meta">
+      <strong>Channel:</strong> ${ticketName} | 
+      <strong>Closed by:</strong> ${member.user.tag} | 
+      <strong>Date:</strong> ${new Date().toUTCString()} | 
+      <strong>Messages:</strong> ${allMessages.length}
+    </div>
+  </div>
+  <div class="messages">\n`;
+
+    for (const msg of allMessages) {
+      const time = msg.createdAt.toLocaleString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      const avatar = msg.author.displayAvatarURL({ size: 64 }) || msg.author.defaultAvatarURL;
+      const text = msg.content ? escapeHtml(msg.content).replace(/\n/g, '<br>') : '<em style="color:#72767d">[No text content]</em>';
+
+      let attachmentsHtml = '';
+      if (msg.attachments.size > 0) {
+        attachmentsHtml = '<div class="attachments">';
+        msg.attachments.forEach(att => {
+          if (att.contentType && att.contentType.startsWith('image/')) {
+            attachmentsHtml += `<a href="${att.url}" target="_blank"><img src="${att.url}" style="max-width:300px;max-height:200px;border-radius:4px;margin-top:4px;"></a><br>`;
+          } else {
+            attachmentsHtml += `<a href="${att.url}" target="_blank">📎 ${att.name}</a><br>`;
+          }
+        });
+        attachmentsHtml += '</div>';
+      }
+
+      htmlContent += `    <div class="message">
+      <img class="avatar" src="${avatar}" alt="${msg.author.username}">
+      <div class="content">
+        <div class="author">${escapeHtml(msg.author.username)}<span class="timestamp">${time}</span></div>
+        <div class="text">${text}</div>
+        ${attachmentsHtml}
+      </div>
+    </div>\n`;
+    }
+
+    htmlContent += `  </div>
+  <div class="footer">
+    Orbital International • Ticket Transcript • Generated ${new Date().toUTCString()}
+  </div>
+</body>
+</html>`;
+
+    // Save files temporarily
+    const txtPath = path.join('/tmp', `${baseFileName}.txt`);
+    const htmlPath = path.join('/tmp', `${baseFileName}.html`);
+
+    fs.writeFileSync(txtPath, txtContent, 'utf8');
+    fs.writeFileSync(htmlPath, htmlContent, 'utf8');
+
+    // Create attachments
+    const txtAttachment = new AttachmentBuilder(txtPath, { name: `${baseFileName}.txt` });
+    const htmlAttachment = new AttachmentBuilder(htmlPath, { name: `${baseFileName}.html` });
+
+    // Log to logs channel with transcripts
+    const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
+    if (logsChannel) {
+      const logEmbed = new EmbedBuilder()
+        .setTitle('🔒 Ticket Closed')
+        .setDescription(`**Channel:** ${channel.name}\n**Closed by:** ${member.user.tag} (${member.id})\n**Messages:** ${allMessages.length}`)
+        .setColor(0xED4245)
+        .setTimestamp();
+
+      await logsChannel.send({
+        embeds: [logEmbed],
+        files: [txtAttachment, htmlAttachment]
+      }).catch(err => console.error('Failed to send transcript:', err));
+    }
+
+    // Clean up temp files
+    try {
+      fs.unlinkSync(txtPath);
+      fs.unlinkSync(htmlPath);
+    } catch (e) {}
+
+    // Delete channel after 3 seconds
+    setTimeout(async () => {
+      await channel.delete().catch(err => {
+        console.error('Failed to delete ticket channel:', err);
+      });
+    }, 3000);
+
+  } catch (err) {
+    console.error('Ticket close error:', err);
+    await interaction.editReply({
+      content: '❌ Error generating transcript. Closing ticket anyway...'
     });
-  }, 5000);
+    setTimeout(() => channel.delete().catch(() => {}), 3000);
+  }
+}
+
+function escapeHtml(text) {
+  const div = { toString: () => text };
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 // ─── VERIFICATION HANDLER ───
