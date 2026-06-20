@@ -67,7 +67,7 @@ Failure to follow these rules will result in immediate disciplinary action by th
       .setTitle(':busts_in_silhouette: **MEMBER ONBOARDING**')
       .setDescription('Welcome aboard, Orbiter! 🚀
 
-To help us connect you with the right people, please select your preferences below. You can change these at any time.')
+To help us connect you with the right people, please select your preferences below.')
       .setColor(0x5865F2)
       .setFooter({ text: 'Orbital International • Onboarding', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
 
