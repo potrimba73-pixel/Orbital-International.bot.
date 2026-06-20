@@ -1,5 +1,4 @@
 const { Events, InteractionType, MessageFlags } = require('discord.js');
-const UserProfile = require('../utils/models/UserProfile');
 
 // ─── ROLE IDs ───
 const ROLE_IDS = {
@@ -90,16 +89,10 @@ module.exports = {
       }
     }
 
-    // ─── SELECT MENUS ───
+    // ─── SELECT MENUS (onboarding only) ───
     if (interaction.isStringSelectMenu()) {
-      // Onboarding dropdowns (from rules channel)
       if (interaction.customId.startsWith('onboarding_')) {
         await handleOnboarding(interaction);
-        return;
-      }
-      // Configme dropdowns (from /configme command)
-      if (interaction.customId.startsWith('configme_')) {
-        await handleConfigme(interaction);
         return;
       }
     }
@@ -123,6 +116,18 @@ async function handleOnboarding(interaction) {
   const member = interaction.member;
   const type = interaction.customId.replace('onboarding_', ''); // speak, learn, region, age
   const selected = interaction.values;
+
+  // ─── AGE: ONE-TIME ONLY (silently blocked) ───
+  if (type === 'age') {
+    const hasAgeRole = Object.values(ROLE_IDS.age).some(id => member.roles.cache.has(id));
+    if (hasAgeRole) {
+      // Generic error - doesn't reveal that age is locked
+      return interaction.reply({
+        content: '⚠️ Esta opcao nao esta disponivel de momento. Tenta novamente mais tarde.',
+        flags: MessageFlags.Ephemeral
+      });
+    }
+  }
 
   const roleMap = ROLE_IDS[type === 'speak' ? 'native' : type === 'learn' ? 'learning' : type];
   const nameMap = ROLE_NAMES[type === 'speak' ? 'native' : type === 'learn' ? 'learning' : type];
@@ -156,147 +161,9 @@ async function handleOnboarding(interaction) {
                 type === 'region' ? 'Region' : 'Age';
 
   await interaction.reply({
-    content: `${emoji} **${label}** atualizado:
-${added.map(a => `• ${a}`).join('\n')}`,
+    content: `${emoji} **${label}** atualizado:\n${added.map(a => `• ${a}`).join('\n')}`,
     flags: MessageFlags.Ephemeral
   });
-}
-
-// ─── CONFIGME HANDLER (existing /configme command flow) ───
-async function handleConfigme(interaction) {
-  const step = interaction.customId.replace('configme_', '');
-  const value = interaction.values[0];
-
-  try {
-    let profile = await UserProfile.findOne({ userId: interaction.user.id });
-    if (!profile) {
-      profile = new UserProfile({ userId: interaction.user.id, username: interaction.user.username });
-    }
-
-    if (step === 'native') {
-      profile.nativeLanguage = value;
-      profile.language = value;
-
-      const learningOptions = [
-        { label: '🇵🇹 Português (Portuguese)', value: 'pt', description: 'Português' },
-        { label: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 English', value: 'en', description: 'English' },
-        { label: '🇷🇺 Русский (Russian)', value: 'ru', description: 'Русский' },
-        { label: '🇪🇸 Español (Spanish)', value: 'es', description: 'Español' },
-        { label: '🇫🇷 Français (French)', value: 'fr', description: 'Français' }
-      ].filter(opt => opt.value !== value);
-
-      const menu = {
-        type: 1,
-        components: [{
-          type: 3,
-          custom_id: 'configme_learning',
-          placeholder: 'What languages do you want to learn?',
-          options: learningOptions
-        }]
-      };
-
-      await interaction.update({ content: '📚 **Step 2/4**: What language do you want to **learn**?', components: [menu] });
-      await profile.save();
-      return;
-    }
-
-    if (step === 'learning') {
-      profile.learningLanguage = value;
-
-      const regionOptions = [
-        { label: '🇪🇺 Europe', value: 'europe', description: 'Europe', emoji: '🌍' },
-        { label: '🌎 North America', value: 'north_america', description: 'North America', emoji: '🌎' },
-        { label: '🌎 South America', value: 'south_america', description: 'South America', emoji: '🌎' },
-        { label: '🇷🇺 Eastern Europe / CIS', value: 'eastern_europe', description: 'Eastern Europe / CIS', emoji: '🌍' },
-        { label: '🌍 Africa & Middle East', value: 'africa_me', description: 'Africa & Middle East', emoji: '🌍' },
-        { label: '🌏 Asia & Oceania', value: 'asia_oceania', description: 'Asia & Oceania', emoji: '🌏' }
-      ];
-
-      const menu = {
-        type: 1,
-        components: [{
-          type: 3,
-          custom_id: 'configme_region',
-          placeholder: 'Where are you from?',
-          options: regionOptions
-        }]
-      };
-
-      await interaction.update({ content: '🌎 **Step 3/4**: Where are you **from**?', components: [menu] });
-      await profile.save();
-      return;
-    }
-
-    if (step === 'region') {
-      profile.region = value;
-
-      const ageOptions = [
-        { label: '🟢 11-13 years', value: '11-13', description: '11-13 years old' },
-        { label: '🟡 14-16 years', value: '14-16', description: '14-16 years old' },
-        { label: '🔵 17-19 years', value: '17-19', description: '17-19 years old' },
-        { label: '🟣 20-22 years', value: '20-22', description: '20-22 years old' }
-      ];
-
-      const menu = {
-        type: 1,
-        components: [{
-          type: 3,
-          custom_id: 'configme_age',
-          placeholder: 'How old are you?',
-          options: ageOptions
-        }]
-      };
-
-      await interaction.update({ content: '🎂 **Step 4/4**: How **old** are you?', components: [menu] });
-      await profile.save();
-      return;
-    }
-
-    if (step === 'age') {
-      profile.ageGroup = value;
-      profile.updatedAt = new Date();
-      await profile.save();
-
-      const member = interaction.member;
-      const rolesToAdd = [];
-
-      if (ROLE_IDS.native[profile.nativeLanguage]) rolesToAdd.push(ROLE_IDS.native[profile.nativeLanguage]);
-      if (ROLE_IDS.learning[profile.learningLanguage]) rolesToAdd.push(ROLE_IDS.learning[profile.learningLanguage]);
-      if (ROLE_IDS.region[profile.region]) rolesToAdd.push(ROLE_IDS.region[profile.region]);
-      if (ROLE_IDS.age[profile.ageGroup]) rolesToAdd.push(ROLE_IDS.age[profile.ageGroup]);
-      rolesToAdd.push(ROLE_IDS.member);
-
-      for (const roleId of rolesToAdd) {
-        try { await member.roles.add(roleId); } catch (e) { console.error('Failed to add role ' + roleId + ':', e.message); }
-      }
-
-      await interaction.update({
-        content: '✅ **Profile Complete!** Welcome to Orbital International!\n\n' +
-          '🗣️ **Native**: ' + profile.nativeLanguage.toUpperCase() + '\n' +
-          '📚 **Learning**: ' + profile.learningLanguage.toUpperCase() + '\n' +
-          '🌎 **Region**: ' + profile.region.replace(/_/g, ' ').toUpperCase() + '\n' +
-          '🎂 **Age**: ' + profile.ageGroup + '\n\n' +
-          'Roles assigned successfully!',
-        components: []
-      });
-
-      try {
-        const rulesChannel = await interaction.client.channels.fetch(process.env.RULES_CHANNEL_ID);
-        if (rulesChannel) {
-          await rulesChannel.send({
-            content: '🎉 Welcome <@' + interaction.user.id + '>! They joined us from **' +
-              profile.region.replace(/_/g, ' ').toUpperCase() + '** and speak **' +
-              profile.nativeLanguage.toUpperCase() + '**, learning **' +
-              profile.learningLanguage.toUpperCase() + '**!'
-          });
-        }
-      } catch (e) { console.error('Failed to send welcome:', e.message); }
-    }
-
-  } catch (error) {
-    console.error('Configme error:', error);
-    await interaction.update({ content: '❌ An error occurred. Please try /configme again.', components: [] }).catch(() => {});
-  }
 }
 
 // ─── VERIFICATION HANDLER ───
@@ -318,7 +185,7 @@ async function handleVerification(interaction) {
     });
   }
 
-  await interaction.member.roles.add(memberRole);
+  await interaction.member.roles.add(memberRoleId);
   await interaction.reply({
     content: '✅ Bem-vindo a bordo, Orbiter! Regras aceites.',
     flags: MessageFlags.Ephemeral
