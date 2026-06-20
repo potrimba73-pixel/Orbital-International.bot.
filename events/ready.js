@@ -12,11 +12,21 @@ module.exports = {
     console.log(`📊 Serving ${client.guilds.cache.size} guild(s)`);
     console.log(`👥 ${client.users.cache.size} users in cache`);
 
+    // Wait a bit for guilds to be fully available
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     // ─── RULES PANEL ───
-    const rulesChannel = await client.channels.fetch(RULES_CHANNEL_ID).catch(() => null);
+    console.log(`[Rules] Fetching channel ${RULES_CHANNEL_ID}...`);
+    const rulesChannel = await client.channels.fetch(RULES_CHANNEL_ID).catch(err => {
+      console.error(`[Rules] Failed to fetch channel: ${err.message}`);
+      return null;
+    });
+
     if (!rulesChannel) {
-      console.error('❌ Rules channel not found. Check RULES_CHANNEL_ID.');
+      console.error('[Rules] Channel not found or bot lacks access.');
     } else {
+      console.log(`[Rules] Channel found: #${rulesChannel.name} (type: ${rulesChannel.type})`);
+
       const rulesEmbed = new EmbedBuilder()
         .setTitle('<:Rules:1517297885283094711> **ORBITAL-INTERNATIONAL • COMMUNITY RULES** :rocket:')
         .setDescription('Welcome to the space station. To maintain a safe, private, and productive environment for learning and connection, all members must follow these guidelines.
@@ -63,7 +73,11 @@ Failure to follow these rules will result in immediate disciplinary action by th
         );
 
       // Anti-spam: fetch last 50 messages
-      const messages = await rulesChannel.messages.fetch({ limit: 50 }).catch(() => new Map());
+      const messages = await rulesChannel.messages.fetch({ limit: 50 }).catch(err => {
+        console.error(`[Rules] Failed to fetch messages: ${err.message}`);
+        return new Map();
+      });
+
       let rulesMsg = null;
       for (const [, msg] of messages) {
         if (msg.author.id === client.user.id && msg.embeds.length > 0) {
@@ -81,15 +95,30 @@ Failure to follow these rules will result in immediate disciplinary action by th
           console.log('✅ Rules panel sent.');
         }
       } catch (err) {
-        console.error('❌ Error with rules panel:', err.message);
+        console.error(`❌ Error with rules panel: ${err.message}`);
       }
     }
 
     // ─── ONBOARDING PANEL ───
-    const rolesChannel = await client.channels.fetch(ROLES_CHANNEL_ID).catch(() => null);
+    console.log(`[Onboarding] Fetching channel ${ROLES_CHANNEL_ID}...`);
+    const rolesChannel = await client.channels.fetch(ROLES_CHANNEL_ID).catch(err => {
+      console.error(`[Onboarding] Failed to fetch channel: ${err.message}`);
+      return null;
+    });
+
     if (!rolesChannel) {
-      return console.error('❌ Roles channel not found. Check ROLES_CHANNEL_ID.');
+      console.error('[Onboarding] Channel not found or bot lacks access.');
+      // List all channels the bot can see for debugging
+      console.log('[Onboarding] Available text channels:');
+      client.channels.cache.forEach(ch => {
+        if (ch.isTextBased && ch.isTextBased()) {
+          console.log(`  - #${ch.name} (${ch.id}) in guild: ${ch.guild?.name || 'DM'}`);
+        }
+      });
+      return;
     }
+
+    console.log(`[Onboarding] Channel found: #${rolesChannel.name} (type: ${rolesChannel.type})`);
 
     const onboardingEmbed = new EmbedBuilder()
       .setTitle(':busts_in_silhouette: **MEMBER ONBOARDING**')
@@ -160,7 +189,11 @@ To help us connect you with the right people, please select your preferences bel
     );
 
     // Anti-spam: fetch last 50 messages in roles channel
-    const roleMessages = await rolesChannel.messages.fetch({ limit: 50 }).catch(() => new Map());
+    const roleMessages = await rolesChannel.messages.fetch({ limit: 50 }).catch(err => {
+      console.error(`[Onboarding] Failed to fetch messages: ${err.message}`);
+      return new Map();
+    });
+
     let onboardMsg = null;
     for (const [, msg] of roleMessages) {
       if (msg.author.id === client.user.id && msg.embeds.length > 0) {
@@ -178,7 +211,7 @@ To help us connect you with the right people, please select your preferences bel
         console.log('✅ Onboarding panel sent.');
       }
     } catch (err) {
-      console.error('❌ Error with onboarding panel:', err.message);
+      console.error(`❌ Error with onboarding panel: ${err.message}`);
     }
   }
 };
