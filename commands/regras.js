@@ -1,19 +1,30 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
+const RULES_CHANNEL_ID = '1515151037344907336';
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('regras')
-    .setDescription('Send rules panel')
+    .setDescription('Send or update rules panel')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   async execute(interaction) {
+    const channel = await interaction.client.channels.fetch(RULES_CHANNEL_ID).catch(() => null);
+
+    if (!channel) {
+      return interaction.reply({
+        content: '❌ Canal de regras não encontrado.',
+        ephemeral: true
+      });
+    }
+
     const embed = new EmbedBuilder()
       .setTitle('<:Rules:1517297885283094711> **ORBITAL-INTERNATIONAL • COMMUNITY RULES** :rocket:')
       .setDescription('Welcome to the space station. To maintain a safe, private, and productive environment for learning and connection, all members must follow these guidelines.\n\n:link: **Official Discord Guidelines:**\nAs an official community, we comply with Discord\'s policies. All members are required to follow their guidelines:\n• Discord Terms of Service: https://discord.com/terms\n• Discord Community Guidelines: https://discord.com/guidelines')
       .setColor(0x5865F2)
       .addFields(
         { 
-          name: ':ringed_planet: ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ :ringed_planet:', 
+          name: ':ringed_planet: ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ :ringed_planet:', 
           value: '\u200B', 
           inline: false 
         },
@@ -54,7 +65,7 @@ module.exports = {
         },
         {
           name: '\u200B',
-          value: '*This is the end of Rules, scroll up to view the full text.*\n\n*By clicking the button below, you confirm that you have read, understood, and agreed to these terms.*',
+          value: '***\n*This is the end of Rules, scroll up to view the full text.*\n\n*By clicking the button below, you confirm that you have read, understood, and agreed to these terms.*',
           inline: false
         }
       )
@@ -71,6 +82,35 @@ module.exports = {
           .setStyle(ButtonStyle.Success)
       );
 
-    await interaction.reply({ embeds: [embed], components: [row] });
+    // Verifica se já existe um painel de regras no canal
+    // Procura mensagens do bot com embed de regras (últimas 50 mensagens)
+    const messages = await channel.messages.fetch({ limit: 50 }).catch(() => new Map());
+    let existingMessage = null;
+
+    for (const [, msg] of messages) {
+      if (msg.author.id === interaction.client.user.id && msg.embeds.length > 0) {
+        const embedTitle = msg.embeds[0].title || '';
+        if (embedTitle.includes('COMMUNITY RULES')) {
+          existingMessage = msg;
+          break;
+        }
+      }
+    }
+
+    if (existingMessage) {
+      // Edita o painel existente
+      await existingMessage.edit({ embeds: [embed], components: [row] });
+      return interaction.reply({
+        content: '✅ Painel de regras atualizado com sucesso!',
+        ephemeral: true
+      });
+    } else {
+      // Envia novo painel
+      await channel.send({ embeds: [embed], components: [row] });
+      return interaction.reply({
+        content: '✅ Painel de regras enviado com sucesso no canal <#' + RULES_CHANNEL_ID + '>!',
+        ephemeral: true
+      });
+    }
   }
 };
