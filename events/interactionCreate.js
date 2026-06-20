@@ -1,8 +1,7 @@
-const { Events, InteractionType, MessageFlags } = require('discord.js');
+const { Events, InteractionType, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits } = require('discord.js');
 
 // ─── ROLE IDs ───
 const ROLE_IDS = {
-  // Native Speaker Roles
   native: {
     pt: '1515151237740498996',
     en: '1515151352966156449',
@@ -10,7 +9,6 @@ const ROLE_IDS = {
     ru: '1515151422721622239',
     fr: '1515151532704923739'
   },
-  // Learning Roles
   learning: {
     pt: '1517689052990541824',
     en: '1517690503024349354',
@@ -18,14 +16,12 @@ const ROLE_IDS = {
     ru: '1517689430846996550',
     fr: '1517689522714841120'
   },
-  // Age Roles
   age: {
     '11-13': '1515739553804189826',
     '14-16': '1515739597064376441',
     '17-19': '1515739642937479308',
     '20-22': '1517699843928228112'
   },
-  // Region Roles
   region: {
     europe: '1515739900929118278',
     north_america: '1515740225123389500',
@@ -34,7 +30,6 @@ const ROLE_IDS = {
     africa_me: '1515740271835349022',
     asia_oceania: '1515740516338241679'
   },
-  // Gender Roles
   gender: {
     male: '1517998164400013373',
     female: '1517998323498487838',
@@ -43,7 +38,6 @@ const ROLE_IDS = {
   member: '1515151179019980931'
 };
 
-// ─── ROLE NAME MAP (for replies) ───
 const ROLE_NAMES = {
   native: {
     pt: 'Português (Portuguese) Speaker',
@@ -80,6 +74,17 @@ const ROLE_NAMES = {
   }
 };
 
+// ─── TICKET CONFIG ───
+const TICKET_CATEGORY_ID = '1515381294261862571';
+const STAFF_ROLE_ID = '1515151599503282227';
+
+const TICKET_LABELS = {
+  general: '👤 General Support',
+  report: '🛡️ Report User',
+  language: '🌍 Language Help',
+  other: '🛸 Other / Partnership'
+};
+
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction, client) {
@@ -100,10 +105,14 @@ module.exports = {
       }
     }
 
-    // ─── SELECT MENUS (onboarding only) ───
+    // ─── SELECT MENUS ───
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId.startsWith('onboarding_')) {
         await handleOnboarding(interaction);
+        return;
+      }
+      if (interaction.customId === 'ticket_create') {
+        await handleTicketCreate(interaction);
         return;
       }
     }
@@ -114,6 +123,8 @@ module.exports = {
         if (!interaction.isRepliable()) return;
         if (interaction.customId === 'verify_member') {
           await handleVerification(interaction);
+        } else if (interaction.customId === 'ticket_close') {
+          await handleTicketClose(interaction);
         }
       } catch (error) {
         console.error('Button interaction error:', error.message);
@@ -122,13 +133,12 @@ module.exports = {
   }
 };
 
-// ─── ONBOARDING HANDLER (rules channel dropdowns) ───
+// ─── ONBOARDING HANDLER ───
 async function handleOnboarding(interaction) {
   const member = interaction.member;
-  const type = interaction.customId.replace('onboarding_', ''); // speak, learn, region, age, gender
+  const type = interaction.customId.replace('onboarding_', '');
   const selected = interaction.values;
 
-  // ─── AGE: ONE-TIME ONLY (silently blocked) ───
   if (type === 'age') {
     const hasAgeRole = Object.values(ROLE_IDS.age).some(id => member.roles.cache.has(id));
     if (hasAgeRole) {
@@ -139,7 +149,6 @@ async function handleOnboarding(interaction) {
     }
   }
 
-  // ─── GENDER: ONE-TIME ONLY (silently blocked) ───
   if (type === 'gender') {
     const hasGenderRole = Object.values(ROLE_IDS.gender).some(id => member.roles.cache.has(id));
     if (hasGenderRole) {
@@ -155,14 +164,12 @@ async function handleOnboarding(interaction) {
 
   if (!roleMap) return;
 
-  // Remove all roles from this category first
   const allCategoryRoleIds = Object.values(roleMap);
   const rolesToRemove = member.roles.cache.filter(r => allCategoryRoleIds.includes(r.id));
   if (rolesToRemove.size > 0) {
     await member.roles.remove(rolesToRemove).catch(() => {});
   }
 
-  // Add selected roles
   const added = [];
   for (const val of selected) {
     const roleId = roleMap[val];
@@ -187,6 +194,100 @@ async function handleOnboarding(interaction) {
     content: `${emoji} **${label}** updated:\n${added.map(a => `• ${a}`).join('\n')}`,
     flags: MessageFlags.Ephemeral
   });
+}
+
+// ─── TICKET CREATE HANDLER ───
+async function handleTicketCreate(interaction) {
+  const member = interaction.member;
+  const reason = interaction.values[0];
+  const guild = interaction.guild;
+
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  // Check if user already has an open ticket
+  const existingTicket = guild.channels.cache.find(ch => 
+    ch.name === `ticket-${member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+  );
+
+  if (existingTicket) {
+    return interaction.editReply({
+      content: `⚠️ You already have an open ticket: ${existingTicket}`
+    });
+  }
+
+  try {
+    const ticketChannel = await guild.channels.create({
+      name: `ticket-${member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+      type: ChannelType.GuildText,
+      parent: TICKET_CATEGORY_ID,
+      permissionOverwrites: [
+        {
+          id: guild.id,
+          deny: [PermissionFlagsBits.ViewChannel]
+        },
+        {
+          id: member.id,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+        },
+        {
+          id: STAFF_ROLE_ID,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+        }
+      ]
+    });
+
+    const ticketEmbed = new EmbedBuilder()
+      .setTitle('🌌 ORBITAL HUB • TICKET OPENED')
+      .setDescription(`Hello ${member}, your ticket has been created.\n\n**Reason:** ${TICKET_LABELS[reason]}\n**User:** ${member.user.tag}\n**ID:** ${member.id}\n\nPlease describe your issue in detail. A Staff member will assist you shortly.`)
+      .setColor(0x2E0854)
+      .setTimestamp();
+
+    const closeRow = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('ticket_close')
+          .setLabel('🔒 Close Ticket')
+          .setStyle(ButtonStyle.Danger)
+      );
+
+    await ticketChannel.send({
+      content: `${member} <@&${STAFF_ROLE_ID}>`,
+      embeds: [ticketEmbed],
+      components: [closeRow]
+    });
+
+    await interaction.editReply({
+      content: `✅ Your ticket has been created: ${ticketChannel}`
+    });
+
+  } catch (err) {
+    console.error('Ticket creation error:', err);
+    await interaction.editReply({
+      content: '❌ Failed to create ticket. Please contact a Staff member.'
+    });
+  }
+}
+
+// ─── TICKET CLOSE HANDLER ───
+async function handleTicketClose(interaction) {
+  const channel = interaction.channel;
+
+  if (!channel.name.startsWith('ticket-')) {
+    return interaction.reply({
+      content: '❌ This is not a ticket channel.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  await interaction.reply({
+    content: '🔒 Closing ticket in 5 seconds...'
+  });
+
+  setTimeout(async () => {
+    await channel.delete().catch(err => {
+      console.error('Failed to delete ticket channel:', err);
+    });
+  }, 5000);
 }
 
 // ─── VERIFICATION HANDLER ───
