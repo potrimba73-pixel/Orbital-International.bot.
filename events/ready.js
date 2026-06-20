@@ -2,6 +2,9 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelect
 
 const RULES_CHANNEL_ID = '1515151037344907336';
 const ROLES_CHANNEL_ID = '1516956728477093978';
+const TICKET_CHANNEL_ID = '1515381294261862571';
+const TICKET_CATEGORY_ID = '1515381294261862571';
+const STAFF_ROLE_ID = '1515151599503282227';
 
 module.exports = {
   name: 'ready',
@@ -86,106 +89,186 @@ module.exports = {
 
     if (!rolesChannel) {
       console.error('[Onboarding] Channel not found or bot lacks access.');
-      console.log('[Onboarding] Available text channels:');
-      client.channels.cache.forEach(ch => {
-        if (ch.isTextBased && ch.isTextBased()) {
-          console.log(`  - #${ch.name} (${ch.id}) in guild: ${ch.guild ? ch.guild.name : 'DM'}`);
-        }
+    } else {
+      console.log(`[Onboarding] Channel found: #${rolesChannel.name} (type: ${rolesChannel.type})`);
+
+      const onboardingEmbed = new EmbedBuilder()
+        .setTitle(':busts_in_silhouette: **MEMBER ONBOARDING**')
+        .setDescription('Welcome aboard, Orbiter! 🚀\n\nTo help us connect you with the right people, please select your preferences below.')
+        .setColor(0x5865F2)
+        .setFooter({ text: 'Orbital International • Onboarding', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+
+      const speakMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('onboarding_speak')
+          .setPlaceholder('🗣️ What languages do you speak?')
+          .setMinValues(1)
+          .setMaxValues(5)
+          .addOptions(
+            new StringSelectMenuOptionBuilder().setLabel('🇵🇹 Português (Portuguese)').setValue('pt').setEmoji('🇵🇹'),
+            new StringSelectMenuOptionBuilder().setLabel('🇬🇧 English').setValue('en').setEmoji('🇬🇧'),
+            new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Русский (Russian)').setValue('ru').setEmoji('🇷🇺'),
+            new StringSelectMenuOptionBuilder().setLabel('🇪🇸 Español (Spanish)').setValue('es').setEmoji('🇪🇸'),
+            new StringSelectMenuOptionBuilder().setLabel('🇫🇷 Français (French)').setValue('fr').setEmoji('🇫🇷')
+          )
+      );
+
+      const learnMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('onboarding_learn')
+          .setPlaceholder('📚 What languages do you want to learn?')
+          .setMinValues(1)
+          .setMaxValues(5)
+          .addOptions(
+            new StringSelectMenuOptionBuilder().setLabel('🇵🇹 Português (Portuguese)').setValue('pt').setEmoji('🇵🇹'),
+            new StringSelectMenuOptionBuilder().setLabel('🇬🇧 English').setValue('en').setEmoji('🇬🇧'),
+            new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Русский (Russian)').setValue('ru').setEmoji('🇷🇺'),
+            new StringSelectMenuOptionBuilder().setLabel('🇪🇸 Español (Spanish)').setValue('es').setEmoji('🇪🇸'),
+            new StringSelectMenuOptionBuilder().setLabel('🇫🇷 Français (French)').setValue('fr').setEmoji('🇫🇷')
+          )
+      );
+
+      const regionMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('onboarding_region')
+          .setPlaceholder('🌍 Where are you from?')
+          .setMinValues(1)
+          .setMaxValues(1)
+          .addOptions(
+            new StringSelectMenuOptionBuilder().setLabel('🇪🇺 Europe').setValue('europe').setEmoji('🇪🇺'),
+            new StringSelectMenuOptionBuilder().setLabel('🌎 North America').setValue('north_america').setEmoji('🌎'),
+            new StringSelectMenuOptionBuilder().setLabel('🌎 South America').setValue('south_america').setEmoji('🌎'),
+            new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Eastern Europe / CIS').setValue('eastern_europe').setEmoji('🇷🇺'),
+            new StringSelectMenuOptionBuilder().setLabel('🌍 Africa & Middle East').setValue('africa_me').setEmoji('🌍'),
+            new StringSelectMenuOptionBuilder().setLabel('🌏 Asia & Oceania').setValue('asia_oceania').setEmoji('🌏')
+          )
+      );
+
+      const ageMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('onboarding_age')
+          .setPlaceholder('🎂 How old are you?')
+          .setMinValues(1)
+          .setMaxValues(1)
+          .addOptions(
+            new StringSelectMenuOptionBuilder().setLabel('🟢 11-13 years').setValue('11-13').setEmoji('🟢'),
+            new StringSelectMenuOptionBuilder().setLabel('🟡 14-16 years').setValue('14-16').setEmoji('🟡'),
+            new StringSelectMenuOptionBuilder().setLabel('🔵 17-19 years').setValue('17-19').setEmoji('🔵'),
+            new StringSelectMenuOptionBuilder().setLabel('🟣 20-22 years').setValue('20-22').setEmoji('🟣')
+          )
+      );
+
+      const genderMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('onboarding_gender')
+          .setPlaceholder('⚧️ What is your gender?')
+          .setMinValues(1)
+          .setMaxValues(1)
+          .addOptions(
+            new StringSelectMenuOptionBuilder().setLabel('🟦 Male / Masculino').setValue('male').setEmoji('🟦'),
+            new StringSelectMenuOptionBuilder().setLabel('🟥 Female / Feminino').setValue('female').setEmoji('🟥'),
+            new StringSelectMenuOptionBuilder().setLabel('🟪 Other / Outro').setValue('other').setEmoji('🟪')
+          )
+      );
+
+      const roleMessages = await rolesChannel.messages.fetch({ limit: 50 }).catch(err => {
+        console.error(`[Onboarding] Failed to fetch messages: ${err.message}`);
+        return new Map();
       });
-      return;
+
+      let onboardMsg = null;
+      for (const [, msg] of roleMessages) {
+        if (msg.author.id === client.user.id && msg.embeds.length > 0) {
+          const title = msg.embeds[0].title || '';
+          if (title.includes('MEMBER ONBOARDING')) { onboardMsg = msg; break; }
+        }
+      }
+
+      try {
+        if (onboardMsg) {
+          await onboardMsg.edit({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu, genderMenu] });
+          console.log('✅ Onboarding panel updated.');
+        } else {
+          await rolesChannel.send({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu, genderMenu] });
+          console.log('✅ Onboarding panel sent.');
+        }
+      } catch (err) {
+        console.error(`❌ Error with onboarding panel: ${err.message}`);
+      }
     }
 
-    console.log(`[Onboarding] Channel found: #${rolesChannel.name} (type: ${rolesChannel.type})`);
-
-    const onboardingEmbed = new EmbedBuilder()
-      .setTitle(':busts_in_silhouette: **MEMBER ONBOARDING**')
-      .setDescription('Welcome aboard, Orbiter! 🚀\n\nTo help us connect you with the right people, please select your preferences below.')
-      .setColor(0x5865F2)
-      .setFooter({ text: 'Orbital International • Onboarding', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
-
-    const speakMenu = new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId('onboarding_speak')
-        .setPlaceholder('🗣️ What languages do you speak?')
-        .setMinValues(1)
-        .setMaxValues(5)
-        .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel('🇵🇹 Português (Portuguese)').setValue('pt').setEmoji('🇵🇹'),
-          new StringSelectMenuOptionBuilder().setLabel('🇬🇧 English').setValue('en').setEmoji('🇬🇧'),
-          new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Русский (Russian)').setValue('ru').setEmoji('🇷🇺'),
-          new StringSelectMenuOptionBuilder().setLabel('🇪🇸 Español (Spanish)').setValue('es').setEmoji('🇪🇸'),
-          new StringSelectMenuOptionBuilder().setLabel('🇫🇷 Français (French)').setValue('fr').setEmoji('🇫🇷')
-        )
-    );
-
-    const learnMenu = new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId('onboarding_learn')
-        .setPlaceholder('📚 What languages do you want to learn?')
-        .setMinValues(1)
-        .setMaxValues(5)
-        .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel('🇵🇹 Português (Portuguese)').setValue('pt').setEmoji('🇵🇹'),
-          new StringSelectMenuOptionBuilder().setLabel('🇬🇧 English').setValue('en').setEmoji('🇬🇧'),
-          new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Русский (Russian)').setValue('ru').setEmoji('🇷🇺'),
-          new StringSelectMenuOptionBuilder().setLabel('🇪🇸 Español (Spanish)').setValue('es').setEmoji('🇪🇸'),
-          new StringSelectMenuOptionBuilder().setLabel('🇫🇷 Français (French)').setValue('fr').setEmoji('🇫🇷')
-        )
-    );
-
-    const regionMenu = new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId('onboarding_region')
-        .setPlaceholder('🌍 Where are you from?')
-        .setMinValues(1)
-        .setMaxValues(1)
-        .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel('🇪🇺 Europe').setValue('europe').setEmoji('🇪🇺'),
-          new StringSelectMenuOptionBuilder().setLabel('🌎 North America').setValue('north_america').setEmoji('🌎'),
-          new StringSelectMenuOptionBuilder().setLabel('🌎 South America').setValue('south_america').setEmoji('🌎'),
-          new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Eastern Europe / CIS').setValue('eastern_europe').setEmoji('🇷🇺'),
-          new StringSelectMenuOptionBuilder().setLabel('🌍 Africa & Middle East').setValue('africa_me').setEmoji('🌍'),
-          new StringSelectMenuOptionBuilder().setLabel('🌏 Asia & Oceania').setValue('asia_oceania').setEmoji('🌏')
-        )
-    );
-
-    const ageMenu = new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId('onboarding_age')
-        .setPlaceholder('🎂 How old are you?')
-        .setMinValues(1)
-        .setMaxValues(1)
-        .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel('🟢 11-13 years').setValue('11-13').setEmoji('🟢'),
-          new StringSelectMenuOptionBuilder().setLabel('🟡 14-16 years').setValue('14-16').setEmoji('🟡'),
-          new StringSelectMenuOptionBuilder().setLabel('🔵 17-19 years').setValue('17-19').setEmoji('🔵'),
-          new StringSelectMenuOptionBuilder().setLabel('🟣 20-22 years').setValue('20-22').setEmoji('🟣')
-        )
-    );
-
-    const roleMessages = await rolesChannel.messages.fetch({ limit: 50 }).catch(err => {
-      console.error(`[Onboarding] Failed to fetch messages: ${err.message}`);
-      return new Map();
+    // ─── TICKET PANEL ───
+    console.log(`[Tickets] Fetching channel ${TICKET_CHANNEL_ID}...`);
+    const ticketChannel = await client.channels.fetch(TICKET_CHANNEL_ID).catch(err => {
+      console.error(`[Tickets] Failed to fetch channel: ${err.message}`);
+      return null;
     });
 
-    let onboardMsg = null;
-    for (const [, msg] of roleMessages) {
-      if (msg.author.id === client.user.id && msg.embeds.length > 0) {
-        const title = msg.embeds[0].title || '';
-        if (title.includes('MEMBER ONBOARDING')) { onboardMsg = msg; break; }
-      }
-    }
+    if (!ticketChannel) {
+      console.error('[Tickets] Channel not found or bot lacks access.');
+    } else {
+      console.log(`[Tickets] Channel found: #${ticketChannel.name} (type: ${ticketChannel.type})`);
 
-    try {
-      if (onboardMsg) {
-        await onboardMsg.edit({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu] });
-        console.log('✅ Onboarding panel updated.');
-      } else {
-        await rolesChannel.send({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu] });
-        console.log('✅ Onboarding panel sent.');
+      const ticketEmbed = new EmbedBuilder()
+        .setTitle('🌌 ORBITAL HUB • SUPPORT STATION')
+        .setDescription('> Need help, want to report a user, or have a question? You are in the right place. Select the reason for your ticket in the menu below to open a private channel with the Staff.\n\n🔒 Your privacy is guaranteed. No other members can see this chat.')
+        .setColor(0x2E0854)
+        .setFooter({ text: 'Orbital International • Support', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+
+      const ticketMenu = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('ticket_create')
+          .setPlaceholder('🔽 Select a reason for your ticket...')
+          .setMinValues(1)
+          .setMaxValues(1)
+          .addOptions(
+            new StringSelectMenuOptionBuilder()
+              .setLabel('👤 General Support / Questions')
+              .setValue('general')
+              .setDescription('For general doubts about the server or roles.')
+              .setEmoji('👤'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('🛡️ Report a User (Rules / Cliques)')
+              .setValue('report')
+              .setDescription('Report someone breaking rules, being toxic, or creating exclusive groups.')
+              .setEmoji('🛡️'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('🌍 Language & Learning Help')
+              .setValue('language')
+              .setDescription('Issues with language roles or learning sectors.')
+              .setEmoji('🌍'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('🛸 Other / Partnership')
+              .setValue('other')
+              .setDescription('For everything else or administrative topics.')
+              .setEmoji('🛸')
+          )
+      );
+
+      const ticketMessages = await ticketChannel.messages.fetch({ limit: 50 }).catch(err => {
+        console.error(`[Tickets] Failed to fetch messages: ${err.message}`);
+        return new Map();
+      });
+
+      let ticketMsg = null;
+      for (const [, msg] of ticketMessages) {
+        if (msg.author.id === client.user.id && msg.embeds.length > 0) {
+          const title = msg.embeds[0].title || '';
+          if (title.includes('ORBITAL HUB')) { ticketMsg = msg; break; }
+        }
       }
-    } catch (err) {
-      console.error(`❌ Error with onboarding panel: ${err.message}`);
+
+      try {
+        if (ticketMsg) {
+          await ticketMsg.edit({ embeds: [ticketEmbed], components: [ticketMenu] });
+          console.log('✅ Ticket panel updated.');
+        } else {
+          await ticketChannel.send({ embeds: [ticketEmbed], components: [ticketMenu] });
+          console.log('✅ Ticket panel sent.');
+        }
+      } catch (err) {
+        console.error(`❌ Error with ticket panel: ${err.message}`);
+      }
     }
   }
 };
