@@ -4,7 +4,7 @@ const RULES_CHANNEL_ID = '1515151037344907336';
 const ROLES_CHANNEL_ID = '1516956728477093978';
 const TICKET_CHANNEL_ID = '1515381294261862571';
 const TICKET_CATEGORY_ID = '1515381294261862571';
-const STAFF_ROLE_ID = '1515151599503282227';
+const LOGS_CHANNEL_ID = '1515419876859314306';
 
 module.exports = {
   name: 'ready',
@@ -186,11 +186,12 @@ module.exports = {
 
       try {
         if (onboardMsg) {
+          // IMPORTANT: Include ALL 5 menus including gender
           await onboardMsg.edit({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu, genderMenu] });
-          console.log('✅ Onboarding panel updated.');
+          console.log('✅ Onboarding panel updated with 5 dropdowns.');
         } else {
           await rolesChannel.send({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu, genderMenu] });
-          console.log('✅ Onboarding panel sent.');
+          console.log('✅ Onboarding panel sent with 5 dropdowns.');
         }
       } catch (err) {
         console.error(`❌ Error with onboarding panel: ${err.message}`);
