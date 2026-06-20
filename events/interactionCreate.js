@@ -34,6 +34,12 @@ const ROLE_IDS = {
     africa_me: '1515740271835349022',
     asia_oceania: '1515740516338241679'
   },
+  // Gender Roles
+  gender: {
+    male: '1517998164400013373',
+    female: '1517998323498487838',
+    other: '1517998404133982268'
+  },
   member: '1515151179019980931'
 };
 
@@ -66,6 +72,11 @@ const ROLE_NAMES = {
     '14-16': '14-16 years',
     '17-19': '17-19 years',
     '20-22': '20-22 years'
+  },
+  gender: {
+    male: 'Male 🟦',
+    female: 'Female 🟥',
+    other: 'Other 🟪'
   }
 };
 
@@ -114,14 +125,24 @@ module.exports = {
 // ─── ONBOARDING HANDLER (rules channel dropdowns) ───
 async function handleOnboarding(interaction) {
   const member = interaction.member;
-  const type = interaction.customId.replace('onboarding_', ''); // speak, learn, region, age
+  const type = interaction.customId.replace('onboarding_', ''); // speak, learn, region, age, gender
   const selected = interaction.values;
 
   // ─── AGE: ONE-TIME ONLY (silently blocked) ───
   if (type === 'age') {
     const hasAgeRole = Object.values(ROLE_IDS.age).some(id => member.roles.cache.has(id));
     if (hasAgeRole) {
-      // Generic error - doesn't reveal that age is locked
+      return interaction.reply({
+        content: '⚠️ This option is not available at the moment. Please try again later.',
+        flags: MessageFlags.Ephemeral
+      });
+    }
+  }
+
+  // ─── GENDER: ONE-TIME ONLY (silently blocked) ───
+  if (type === 'gender') {
+    const hasGenderRole = Object.values(ROLE_IDS.gender).some(id => member.roles.cache.has(id));
+    if (hasGenderRole) {
       return interaction.reply({
         content: '⚠️ This option is not available at the moment. Please try again later.',
         flags: MessageFlags.Ephemeral
@@ -155,10 +176,12 @@ async function handleOnboarding(interaction) {
   if (type === 'learn') emoji = '📚';
   if (type === 'region') emoji = '🌍';
   if (type === 'age') emoji = '🎂';
+  if (type === 'gender') emoji = '⚧️';
 
   const label = type === 'speak' ? 'Languages you speak' :
                 type === 'learn' ? 'Languages you want to learn' :
-                type === 'region' ? 'Region' : 'Age';
+                type === 'region' ? 'Region' :
+                type === 'gender' ? 'Gender' : 'Age';
 
   await interaction.reply({
     content: `${emoji} **${label}** updated:\n${added.map(a => `• ${a}`).join('\n')}`,
