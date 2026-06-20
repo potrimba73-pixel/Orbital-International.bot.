@@ -80,7 +80,7 @@ module.exports = {
       try {
         await command.execute(interaction, client);
       } catch (error) {
-        console.error('Error executing ' + interaction.commandName + ':', error);
+        console.error(`Error executing ${interaction.commandName}:`, error);
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp({ content: 'There was an error executing this command!', flags: MessageFlags.Ephemeral }).catch(() => {});
         } else {
@@ -123,7 +123,7 @@ async function handleOnboarding(interaction) {
     if (hasAgeRole) {
       // Generic error - doesn't reveal that age is locked
       return interaction.reply({
-        content: '⚠️ Esta opcao nao esta disponivel de momento. Tenta novamente mais tarde.',
+        content: '⚠️ This option is not available at the moment. Please try again later.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -161,7 +161,7 @@ async function handleOnboarding(interaction) {
                 type === 'region' ? 'Region' : 'Age';
 
   await interaction.reply({
-    content: `${emoji} **${label}** atualizado:\n${added.map(a => `• ${a}`).join('\n')}`,
+    content: `${emoji} **${label}** updated:\n${added.map(a => `• ${a}`).join('\n')}`,
     flags: MessageFlags.Ephemeral
   });
 }
@@ -173,21 +173,21 @@ async function handleVerification(interaction) {
   const memberRole = interaction.guild.roles.cache.get(memberRoleId);
   if (!memberRole) {
     return await interaction.reply({
-      content: '❌ Cargo de membro nao encontrado. Contacta um Staff.',
+      content: '❌ Member role not found. Please contact a Staff member.',
       flags: MessageFlags.Ephemeral
     });
   }
 
   if (interaction.member.roles.cache.has(memberRoleId)) {
     return await interaction.reply({
-      content: '✅ Ja aceitaste as regras.',
+      content: '✅ You have already accepted the rules.',
       flags: MessageFlags.Ephemeral
     });
   }
 
   await interaction.member.roles.add(memberRoleId);
   await interaction.reply({
-    content: '✅ Bem-vindo a bordo, Orbiter! Regras aceites.',
+    content: '✅ Welcome aboard, Orbiter! Rules accepted.',
     flags: MessageFlags.Ephemeral
   });
 }
