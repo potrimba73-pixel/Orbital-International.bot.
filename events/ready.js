@@ -8,7 +8,7 @@ const LOGS_CHANNEL_ID = '1515419876859314306';
 
 // ─── GIF URLs ───
 const GIF_RULES = 'https://media.discordapp.net/attachments/1518300030786867391/1518300469137637486/9bn9qn1.gif?ex=6a396b00&is=6a381980&hm=bb5e8c7d843c2ca4bd88c148feda0c66091c9ca5a5b06fb2842ffa0ab214b20a&animated=true';
-const GIF_ROLES = 'https://cdn.discordapp.com/attachments/1518300030786867391/1518300068996972685/4xhdt3f.gif?ex=6a396aa1&is=6a381921&hm=2b11566d298630ddcbc00f8813196b8995be584aa1320c64175397984eb4c499&animated=true';
+const GIF_ROLES = 'https://cdn.discordapp.com/attachments/1518300030786867391/1518334148702507189/r32w28b.gif?ex=6a398a5e&is=6a3838de&hm=8d2a548f19f9c2863a4dce04676a323eb9615fcfedd12bed8b5d5125694e6f82&animated=true';
 const GIF_TICKET = 'https://media.discordapp.net/attachments/1518300030786867391/1518300468705628270/j88pr2h.gif?ex=6a396b00&is=6a381980&hm=23b27dfe6946c7e2c8f176c5f4a0d895c0c08124db3c36e8526251d0be7ba720&animated=true';
 
 module.exports = {
@@ -34,29 +34,24 @@ module.exports = {
     } else {
       console.log(`[Rules] Channel found: #${rulesChannel.name} (type: ${rulesChannel.type})`);
 
-      // Fetch all bot messages in the channel
       const messages = await rulesChannel.messages.fetch({ limit: 50 }).catch(err => {
         console.error(`[Rules] Failed to fetch messages: ${err.message}`);
         return new Map();
       });
 
-      // Find existing GIF embed message (has embed with image but no title)
       let gifMsg = null;
       let rulesMsg = null;
       for (const [, msg] of messages) {
         if (msg.author.id === client.user.id) {
-          // GIF embed: has embed with image but no title/description
           if (msg.embeds.length > 0 && !msg.embeds[0].title && msg.embeds[0].image) {
             gifMsg = msg;
           }
-          // Rules embed message
           if (msg.embeds.length > 0 && msg.embeds[0].title && msg.embeds[0].title.includes('RULES')) {
             rulesMsg = msg;
           }
         }
       }
 
-      // ─── SEND/EDIT GIF EMBED (first) ───
       const gifEmbed = new EmbedBuilder()
         .setColor(0x5865F2)
         .setImage(GIF_RULES);
@@ -73,7 +68,6 @@ module.exports = {
         console.error(`❌ Error with rules GIF embed: ${err.message}`);
       }
 
-      // ─── SEND/EDIT RULES EMBED (second) ───
       const rulesEmbed = new EmbedBuilder()
         .setTitle('<:Rules:1517297885283094711> **ORBITAL-INTERNATIONAL • RULES** :rocket:')
         .setDescription('Welcome to the space station. To maintain a safe, private, and productive environment for learning and connection, all members must follow these guidelines.\n\n:link: **Official Discord Guidelines:**\nAs an official community, we comply with Discord\'s policies. All members are required to follow their guidelines:\n• Discord Terms of Service: https://discord.com/terms\n• Discord Community Guidelines: https://discord.com/guidelines')
@@ -89,7 +83,7 @@ module.exports = {
           { name: '━━━━━━━━━━━━━━━━▼━━━━━━━━━━━━━━━━', value: ':warning: **CONSEQUENCES & PUNISHMENTS**\nFailure to follow these rules will result in immediate disciplinary action by the Staff. Depending on the severity, punishments include:\n\n• :mute: **Mute / Timeout** ➔ Temporary restriction from typing or speaking.\n• :no_pedestrians: **Server Kick or Permanent Ban** ➔ For extreme toxicity, bullying, or spam.', inline: false },
           { name: '\u200B', value: '***\n*This is the end of Rules, scroll up to view the full text.*\n\n*By clicking the button below, you confirm that you have read, understood, and agreed to these terms.*', inline: false }
         )
-        .setFooter({ text: 'Orbital International • Rules', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+        .setFooter({ text: 'Orbital International • Rules' });
 
       const rulesRow = new ActionRowBuilder()
         .addComponents(
@@ -129,7 +123,7 @@ module.exports = {
         .setDescription('Welcome aboard, Orbiter! 🚀\n\nTo help us connect you with the right people, please select your preferences below.')
         .setColor(0x5865F2)
         .setImage(GIF_ROLES)
-        .setFooter({ text: 'Orbital International • Onboarding', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+        .setFooter({ text: 'Orbital International • Onboarding' });
 
       const speakMenu = new ActionRowBuilder().addComponents(
         new StringSelectMenuBuilder()
@@ -247,7 +241,7 @@ module.exports = {
         .setDescription('> Need help, want to report a user, or have a question? You are in the right place. Select the reason for your ticket in the menu below to open a private channel with the Staff.\n\n🔒 Your privacy is guaranteed. No other members can see this chat.')
         .setColor(0x2E0854)
         .setImage(GIF_TICKET)
-        .setFooter({ text: 'Orbital International • Support', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+        .setFooter({ text: 'Orbital International • Support' });
 
       const ticketMenu = new ActionRowBuilder().addComponents(
         new StringSelectMenuBuilder()
