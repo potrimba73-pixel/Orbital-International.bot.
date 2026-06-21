@@ -40,36 +40,37 @@ module.exports = {
         return new Map();
       });
 
-      // Find existing GIF message (plain message with GIF attachment/image)
+      // Find existing GIF embed message (has embed with image but no title)
       let gifMsg = null;
       let rulesMsg = null;
       for (const [, msg] of messages) {
         if (msg.author.id === client.user.id) {
-          // GIF message: no embeds, has the GIF URL in content
-          if (!msg.embeds.length && msg.content.includes(GIF_RULES)) {
+          // GIF embed: has embed with image but no title/description
+          if (msg.embeds.length > 0 && !msg.embeds[0].title && msg.embeds[0].image) {
             gifMsg = msg;
           }
           // Rules embed message
-          if (msg.embeds.length > 0) {
-            const title = msg.embeds[0].title || '';
-            if (title.includes('RULES')) {
-              rulesMsg = msg;
-            }
+          if (msg.embeds.length > 0 && msg.embeds[0].title && msg.embeds[0].title.includes('RULES')) {
+            rulesMsg = msg;
           }
         }
       }
 
-      // ─── SEND/EDIT GIF MESSAGE (first) ───
+      // ─── SEND/EDIT GIF EMBED (first) ───
+      const gifEmbed = new EmbedBuilder()
+        .setColor(0x5865F2)
+        .setImage(GIF_RULES);
+
       try {
         if (gifMsg) {
-          await gifMsg.edit(GIF_RULES);
-          console.log('✅ Rules GIF updated.');
+          await gifMsg.edit({ embeds: [gifEmbed] });
+          console.log('✅ Rules GIF embed updated.');
         } else {
-          await rulesChannel.send(GIF_RULES);
-          console.log('✅ Rules GIF sent.');
+          await rulesChannel.send({ embeds: [gifEmbed] });
+          console.log('✅ Rules GIF embed sent.');
         }
       } catch (err) {
-        console.error(`❌ Error with rules GIF: ${err.message}`);
+        console.error(`❌ Error with rules GIF embed: ${err.message}`);
       }
 
       // ─── SEND/EDIT RULES EMBED (second) ───
