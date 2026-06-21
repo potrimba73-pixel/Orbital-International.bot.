@@ -1,63 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const UserProfile = require('../utils/models/UserProfile');
-
-const translations = {
-  en: {
-    title: '🌍 Orbital International - Help',
-    desc: 'Anonymous language learning community',
-    language: '🎓 Language Learning',
-    language_desc: '`/configme` - Set up your language profile\n`/translate` - Translate text between languages\n`/findpartner` - Find a language exchange partner',
-    stats: '📊 Stats',
-    stats_desc: '`/mystats` - Your anonymous stats\n`/leaderboard` - Top learners leaderboard',
-    general: '⚙️ General',
-    general_desc: '`/help` - This menu\n`/ping` - Bot latency',
-    footer: 'Use /configme to set your language! | Staff: use /staffhelp'
-  },
-  pt: {
-    title: '🌍 Orbital International - Ajuda',
-    desc: 'Comunidade anónima de aprendizagem de línguas',
-    language: '🎓 Aprendizagem de Línguas',
-    language_desc: '`/configme` - Configura o teu perfil de língua\n`/translate` - Traduz texto entre línguas\n`/findpartner` - Encontra um parceiro de intercâmbio',
-    stats: '📊 Estatísticas',
-    stats_desc: '`/mystats` - As tuas estatísticas anónimas\n`/leaderboard` - Classificação dos melhores',
-    general: '⚙️ Geral',
-    general_desc: '`/help` - Este menu\n`/ping` - Latência do bot',
-    footer: 'Usa /configme para definires a tua língua! | Staff: usa /staffhelp'
-  },
-  ru: {
-    title: '🌍 Orbital International - Помощь',
-    desc: 'Анонимное сообщество изучения языков',
-    language: '🎓 Изучение Языков',
-    language_desc: '`/configme` - Настройка языкового профиля\n`/translate` - Перевод текста\n`/findpartner` - Найти языкового партнера',
-    stats: '📊 Статистика',
-    stats_desc: '`/mystats` - Ваша анонимная статистика\n`/leaderboard` - Таблица лидеров',
-    general: '⚙️ Общее',
-    general_desc: '`/help` - Это меню\n`/ping` - Задержка бота',
-    footer: 'Используйте /configme для настройки языка! | Staff: /staffhelp'
-  },
-  es: {
-    title: '🌍 Orbital International - Ayuda',
-    desc: 'Comunidad anónima de aprendizaje de idiomas',
-    language: '🎓 Aprendizaje de Idiomas',
-    language_desc: '`/configme` - Configurar perfil de idioma\n`/translate` - Traducir texto\n`/findpartner` - Encontrar compañero de intercambio',
-    stats: '📊 Estadísticas',
-    stats_desc: '`/mystats` - Tus estadísticas anónimas\n`/leaderboard` - Clasificación de los mejores',
-    general: '⚙️ General',
-    general_desc: '`/help` - Este menu\n`/ping` - Latencia del bot',
-    footer: '¡Usa /configme para configurar tu idioma! | Staff: usa /staffhelp'
-  },
-  fr: {
-    title: '🌍 Orbital International - Aide',
-    desc: 'Communauté anonyme d\'apprentissage des langues',
-    language: '🎓 Apprentissage des Langues',
-    language_desc: '`/configme` - Configurer le profil linguistique\n`/translate` - Traduire du texte\n`/findpartner` - Trouver un partenaire d\'échange',
-    stats: '📊 Statistiques',
-    stats_desc: '`/mystats` - Vos statistiques anonymes\n`/leaderboard` - Classement des meilleurs',
-    general: '⚙️ Général',
-    general_desc: '`/help` - Ce menu\n`/ping` - Latence du bot',
-    footer: 'Utilisez /configme pour définir votre langue! | Staff: /staffhelp'
-  }
-};
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -69,27 +12,25 @@ module.exports = {
 
     try {
       const profile = await UserProfile.findOne({ userId: interaction.user.id });
-      if (profile && profile.language) {
-        lang = profile.language;
+      if (profile && profile.nativeLanguage) {
+        lang = profile.nativeLanguage;
       }
     } catch (e) {
       // Database error, use default English
     }
 
-    const t = translations[lang] || translations.en;
-
     const embed = new EmbedBuilder()
-      .setTitle(t.title)
-      .setDescription(t.desc)
+      .setTitle('🌍 ' + i18n.get(lang, 'help.title'))
+      .setDescription(i18n.get(lang, 'help.desc'))
       .setColor(0x5865F2)
       .addFields(
-        { name: t.language, value: t.language_desc, inline: false },
-        { name: t.stats, value: t.stats_desc, inline: false },
-        { name: t.general, value: t.general_desc, inline: false }
+        { name: '🎓 ' + i18n.get(lang, 'help.language_title'), value: i18n.get(lang, 'help.language_desc'), inline: false },
+        { name: '📊 ' + i18n.get(lang, 'help.stats_title'), value: i18n.get(lang, 'help.stats_desc'), inline: false },
+        { name: '⚙️ ' + i18n.get(lang, 'help.general_title'), value: i18n.get(lang, 'help.general_desc'), inline: false }
       )
-      .setFooter({ text: t.footer })
+      .setFooter({ text: i18n.get(lang, 'help.footer') })
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed], flags: 64 });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
