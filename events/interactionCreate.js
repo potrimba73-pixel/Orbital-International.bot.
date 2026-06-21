@@ -104,7 +104,7 @@ const LANG_STAFF_ROLES = {
   fr: ['1515151532704923739']
 };
 
-// ─── TICKET UI TRANSLATIONS (for ticket channel embeds/buttons) ───
+// ─── TICKET UI TRANSLATIONS ───
 const TICKET_UI = {
   pt: {
     title: '🌌 ORBITAL HUB • TICKET ABERTO',
@@ -278,9 +278,27 @@ const TICKET_UI = {
     title: '🌌 ORBITAL HUB • TICKET OUVERT',
     userInfo: '👤 Informations Utilisateur',
     accountAge: 'Compte créé il y a',
-    accountAgeFmt: (days) => `${Math.floor(days / 365)}a, ${Math.floor((days % 365) / 30)}m (${days}j)`,
+    accountAgeFmt: (days) => {
+      const y = Math.floor(days / 365);
+      const m = Math.floor((days % 365) / 30);
+      const d = days % 30;
+      let s = [];
+      if (y > 0) s.push(`${y} an${y > 1 ? 's' : ''}`);
+      if (m > 0) s.push(`${m} mois`);
+      if (d > 0 || s.length === 0) s.push(`${d} jour${d > 1 ? 's' : ''}`);
+      return `${s.join(', ')} (${days} jours)`;
+    },
     joinedAgo: 'Dans la communauté depuis',
-    joinedAgoFmt: (days) => `${Math.floor(days / 365)}a ${Math.floor((days % 365) / 30)}m ${days % 30}j`,
+    joinedAgoFmt: (days) => {
+      const y = Math.floor(days / 365);
+      const m = Math.floor((days % 365) / 30);
+      const d = days % 30;
+      let s = [];
+      if (y > 0) s.push(`${y}a`);
+      if (m > 0) s.push(`${m}m`);
+      if (d > 0 || s.length === 0) s.push(`${d}j`);
+      return s.join(' ');
+    },
     age: 'Âge',
     gender: 'Genre',
     notSet: 'Non défini',
