@@ -146,7 +146,7 @@ module.exports = {
             new StringSelectMenuOptionBuilder().setLabel('🌎 North America').setValue('north_america').setEmoji('🌎'),
             new StringSelectMenuOptionBuilder().setLabel('🌎 South America').setValue('south_america').setEmoji('🌎'),
             new StringSelectMenuOptionBuilder().setLabel('🇷🇺 Eastern Europe / CIS').setValue('eastern_europe').setEmoji('🇷🇺'),
-            new StringSelectMenuOptionBuilder().setLabel('🌍 Africa & Middle East').setValue('africa_me').setEmoji('🇪🇺'),
+            new StringSelectMenuOptionBuilder().setLabel('🌍 Africa & Middle East').setValue('africa_me').setEmoji('🌍'),
             new StringSelectMenuOptionBuilder().setLabel('🌏 Asia & Oceania').setValue('asia_oceania').setEmoji('🌏')
           )
       );
