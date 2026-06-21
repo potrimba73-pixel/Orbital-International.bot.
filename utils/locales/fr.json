@@ -1,0 +1,171 @@
+{
+  "common": {
+    "error": "❌ Une erreur s'est produite.",
+    "no_permission": "❌ Vous n'avez pas la permission d'utiliser cette commande.",
+    "not_found": "❌ Non trouvé.",
+    "success": "✅ Succès!",
+    "loading": "⏳ Chargement...",
+    "cancelled": "❌ Annulé.",
+    "yes": "Oui",
+    "no": "Non",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "finish": "Terminer",
+    "skip": "Passer",
+    "done": "Terminé!",
+    "bot_latency": "Latence du Bot",
+    "api_latency": "Latence de l'API",
+    "pong": "🏓 Pong!"
+  },
+  "configme": {
+    "step1": "🌍 **Étape 1/5**: Quelle est votre **langue maternelle**?",
+    "step2": "📚 **Étape 2/5**: Quelle langue voulez-vous **apprendre**?",
+    "step3": "🎂 **Étape 3/5**: Quelle est votre **tranche d'âge**?",
+    "step4": "🌎 **Étape 4/5**: De quelle **région** êtes-vous?",
+    "step5": "⚧ **Étape 5/5**: Quel est votre **genre**?",
+    "completed": "🎉 **Profil terminé!** Bienvenue à Orbital International!",
+    "already_setup": "⚠️ Vous avez déjà un profil configuré! Utilisez `/mystats` pour le voir.",
+    "native_placeholder": "Quelles langues parlez-vous?",
+    "learning_placeholder": "Quelle langue voulez-vous apprendre?",
+    "age_placeholder": "Sélectionnez votre tranche d'âge",
+    "region_placeholder": "Sélectionnez votre région",
+    "gender_placeholder": "Sélectionnez votre genre",
+    "welcome_title": "🌍 Bienvenue à Orbital International!",
+    "welcome_desc": "Des rôles vous ont été attribués selon votre profil. Explorez les canaux de langue et commencez à apprendre!",
+    "rules_channel": "📜 Lisez les règles dans <#{channel}>"
+  },
+  "findpartner": {
+    "no_profile": "❌ Vous devez d'abord configurer votre profil! Utilisez `/configme` pour définir votre langue maternelle et celle que vous voulez apprendre.",
+    "no_partners": "🔍 Aucun partenaire trouvé pour les apprenants de **{learning}** en ce moment.\n\nVotre profil: Maternelle **{native}** → Apprendre **{learning}**\nRéessayez plus tard ou consultez les canaux de langue!",
+    "title": "🤝 Partenaires de Langue pour Vous",
+    "your_profile": "Votre profil: Maternelle **{native}** → Apprendre **{learning}**",
+    "perfect_match": "✨ Match Parfait!",
+    "same_learning": "📚 Même Langue",
+    "native": "Maternelle: {lang}",
+    "learning": "Apprendre: {lang}",
+    "level": "Niveau: {level}",
+    "xp": "XP: {xp}",
+    "coming_soon": "Cliquez sur un bouton pour envoyer une demande de MP (bientôt!)"
+  },
+  "mystats": {
+    "no_stats": "❌ Aucune statistique trouvée! Utilisez `/configme` pour configurer votre profil d'abord.",
+    "title": "📊 Vos Statistiques",
+    "level": "⭐ Niveau Actuel",
+    "xp": "📈 XP Total",
+    "next_level": "🎯 Prochain Niveau",
+    "progress": "Progression",
+    "messages": "💬 Messages Envoyés",
+    "voice": "🎤 Minutes en Vocal",
+    "native": "🗣️ Langue Maternelle",
+    "learning": "📚 Langue à Apprendre",
+    "footer": "Continuez à discuter pour gagner plus d'XP!"
+  },
+  "leaderboard": {
+    "no_stats": "🔍 Pas encore de statistiques! Commencez à discuter pour gagner de l'XP.",
+    "title": "🏆 Meilleurs Apprenants",
+    "desc": "Classement anonyme - aucune donnée personnelle exposée!",
+    "footer": "Mis à jour en temps réel",
+    "level": "Niveau {level}",
+    "messages": "{count} messages"
+  },
+  "translate": {
+    "failed": "❌ La traduction a échoué. Veuillez réessayer plus tard.",
+    "title": "🌐 Traduction",
+    "original": "📤 Original ({lang})",
+    "translation": "📥 Traduction ({lang})",
+    "transliteration": "📝 Translittération (Latin)",
+    "footer": "Powered by Google Translate"
+  },
+  "help": {
+    "title": "🌍 Orbital International - Aide",
+    "desc": "Communauté anonyme d'apprentissage des langues",
+    "language_title": "🎓 Apprentissage des Langues",
+    "language_desc": "`/configme` - Configurer le profil linguistique\n`/translate` - Traduire du texte\n`/findpartner` - Trouver un partenaire d'échange",
+    "stats_title": "📊 Statistiques",
+    "stats_desc": "`/mystats` - Vos statistiques anonymes\n`/leaderboard` - Classement des meilleurs",
+    "general_title": "⚙️ Général",
+    "general_desc": "`/help` - Ce menu\n`/ping` - Latence du bot",
+    "footer": "Utilisez /configme pour définir votre langue! | Staff: /staffhelp"
+  },
+  "staffhelp": {
+    "title": "🛡️ Commandes Staff - Orbital International",
+    "desc": "Commandes restreintes pour la modération du serveur",
+    "mod_title": "📋 Modération",
+    "mod_desc": "`/limpar` - Effacer les messages\n`/anuncio` - Envoyer une annonce\n`/verificar` - Vérifier qui a accepté les règles",
+    "setup_title": "🔧 Configuration",
+    "setup_desc": "`/setupchannels` - Créer automatiquement les canaux de langue\n`/regras` - Envoyer le panneau des règles",
+    "user_title": "👤 Info Utilisateur",
+    "user_desc": "`/userinfo` - Afficher les infos détaillées\n`/canalinfo` - Info canal vocal\n`/serverinfo` - Afficher tous les IDs du serveur",
+    "bot_title": "⚙️ Bot",
+    "bot_desc": "`/ping` - Vérifier la latence du bot",
+    "footer": "Panneau Staff Orbital International"
+  },
+  "ping": {
+    "calculating": "Calcul en cours..."
+  },
+  "limpar": {
+    "cleared": "✅ {count} messages effacés.",
+    "failed": "❌ Impossible de supprimer les messages. Ils datent peut-être de plus de 14 jours."
+  },
+  "verificar": {
+    "not_configured": "❌ Rôle membre non configuré.",
+    "title": "✅ État de Vérification",
+    "verified": "✅ Vérifié",
+    "unverified": "⏳ Non Vérifié",
+    "verified_count": "{count} membres",
+    "unverified_count": "{count} membres",
+    "all_verified": "Tous vérifiés!",
+    "unverified_users": "Utilisateurs Non Vérifiés"
+  },
+  "userinfo": {
+    "not_found": "❌ Utilisateur non trouvé sur ce serveur.",
+    "title": "👤 {tag}",
+    "user_id": "🆔 ID Utilisateur",
+    "joined": "📅 Rejoint le Serveur",
+    "created": "🎂 Compte Créé",
+    "age_role": "🎭 Rôle d'Âge",
+    "lang_roles": "🗣️ Rôles de Langue",
+    "privacy": "🌍 Confidentialité du Profil",
+    "privacy_public": "🌐 Public",
+    "privacy_private": "🔒 Privé",
+    "native": "📚 Langue Maternelle",
+    "learning": "🎯 Langue à Apprendre",
+    "xp_level": "⭐ Niveau d'XP",
+    "no_data": "Pas de données",
+    "not_set": "Non défini (utilisez /configme)",
+    "none": "Aucun",
+    "footer": "Demandé par {tag}"
+  },
+  "anuncio": {
+    "sent": "✅ Annonce envoyée dans {channel}!"
+  },
+  "canalinfo": {
+    "not_voice": "❌ Ce n'est pas un canal vocal!",
+    "title": "🔊 {name}",
+    "channel_id": "🆔 ID du Canal",
+    "user_limit": "👥 Limite d'Utilisateurs",
+    "members": "👤 Membres",
+    "empty": "Vide"
+  },
+  "serverinfo": {
+    "title": "📊 {name} - Info du Serveur",
+    "server_id": "🏠 ID du Serveur",
+    "members": "👥 Membres",
+    "created": "📅 Créé",
+    "categories": "📁 Catégories",
+    "text_channels": "💬 Canaux de Texte",
+    "voice_channels": "🔊 Canaux Vocaux",
+    "roles": "🎭 Rôles",
+    "none": "Aucun",
+    "footer": "Demandé par {tag}"
+  },
+  "setupchannels": {
+    "success": "✅ Canaux de langue créés avec succès!"
+  },
+  "serverroles": {
+    "no_roles": "Aucun rôle trouvé!",
+    "title": "🎭 Rôles du Serveur",
+    "footer": "Total: {count} rôles | Serveur: {name}"
+  }
+}
