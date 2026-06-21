@@ -186,7 +186,6 @@ module.exports = {
 
       try {
         if (onboardMsg) {
-          // IMPORTANT: Include ALL 5 menus including gender
           await onboardMsg.edit({ embeds: [onboardingEmbed], components: [speakMenu, learnMenu, regionMenu, ageMenu, genderMenu] });
           console.log('✅ Onboarding panel updated with 5 dropdowns.');
         } else {
@@ -246,6 +245,14 @@ module.exports = {
           )
       );
 
+      const ticketRedirectRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('🔗 Go to #open-ticket')
+          .setStyle(ButtonStyle.Link)
+          .setURL('https://discord.com/channels/' + ticketChannel.guild.id + '/' + TICKET_CHANNEL_ID)
+          .setEmoji('🎟️')
+      );
+
       const ticketMessages = await ticketChannel.messages.fetch({ limit: 50 }).catch(err => {
         console.error(`[Tickets] Failed to fetch messages: ${err.message}`);
         return new Map();
@@ -261,11 +268,11 @@ module.exports = {
 
       try {
         if (ticketMsg) {
-          await ticketMsg.edit({ embeds: [ticketEmbed], components: [ticketMenu] });
-          console.log('✅ Ticket panel updated.');
+          await ticketMsg.edit({ embeds: [ticketEmbed], components: [ticketMenu, ticketRedirectRow] });
+          console.log('✅ Ticket panel updated with redirect button.');
         } else {
-          await ticketChannel.send({ embeds: [ticketEmbed], components: [ticketMenu] });
-          console.log('✅ Ticket panel sent.');
+          await ticketChannel.send({ embeds: [ticketEmbed], components: [ticketMenu, ticketRedirectRow] });
+          console.log('✅ Ticket panel sent with redirect button.');
         }
       } catch (err) {
         console.error(`❌ Error with ticket panel: ${err.message}`);
