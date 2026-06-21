@@ -8,7 +8,7 @@ const LOGS_CHANNEL_ID = '1515419876859314306';
 
 // ─── GIF URLs ───
 const GIF_RULES = 'https://media.discordapp.net/attachments/1518300030786867391/1518300469137637486/9bn9qn1.gif?ex=6a396b00&is=6a381980&hm=bb5e8c7d843c2ca4bd88c148feda0c66091c9ca5a5b06fb2842ffa0ab214b20a&animated=true';
-const GIF_ROLES = 'https://cdn.discordapp.com/attachments/1518300030786867391/1518334148702507189/r32w28b.gif?ex=6a398a5e&is=6a3838de&hm=8d2a548f19f9c2863a4dce04676a323eb9615fcfedd12bed8b5d5125694e6f82&animated=true';
+const GIF_ROLES = 'https://cdn.discordapp.com/attachments/1518300030786867391/1518300068996972685/4xhdt3f.gif?ex=6a396aa1&is=6a381921&hm=2b11566d298630ddcbc00f8813196b8995be584aa1320c64175397984eb4c499&animated=true';
 const GIF_TICKET = 'https://media.discordapp.net/attachments/1518300030786867391/1518300468705628270/j88pr2h.gif?ex=6a396b00&is=6a381980&hm=23b27dfe6946c7e2c8f176c5f4a0d895c0c08124db3c36e8526251d0be7ba720&animated=true';
 
 module.exports = {
@@ -34,13 +34,51 @@ module.exports = {
     } else {
       console.log(`[Rules] Channel found: #${rulesChannel.name} (type: ${rulesChannel.type})`);
 
+      // Fetch all bot messages in the channel
+      const messages = await rulesChannel.messages.fetch({ limit: 50 }).catch(err => {
+        console.error(`[Rules] Failed to fetch messages: ${err.message}`);
+        return new Map();
+      });
+
+      // Find existing GIF message (plain message with GIF attachment/image)
+      let gifMsg = null;
+      let rulesMsg = null;
+      for (const [, msg] of messages) {
+        if (msg.author.id === client.user.id) {
+          // GIF message: no embeds, has the GIF URL in content
+          if (!msg.embeds.length && msg.content.includes(GIF_RULES)) {
+            gifMsg = msg;
+          }
+          // Rules embed message
+          if (msg.embeds.length > 0) {
+            const title = msg.embeds[0].title || '';
+            if (title.includes('RULES')) {
+              rulesMsg = msg;
+            }
+          }
+        }
+      }
+
+      // ─── SEND/EDIT GIF MESSAGE (first) ───
+      try {
+        if (gifMsg) {
+          await gifMsg.edit(GIF_RULES);
+          console.log('✅ Rules GIF updated.');
+        } else {
+          await rulesChannel.send(GIF_RULES);
+          console.log('✅ Rules GIF sent.');
+        }
+      } catch (err) {
+        console.error(`❌ Error with rules GIF: ${err.message}`);
+      }
+
+      // ─── SEND/EDIT RULES EMBED (second) ───
       const rulesEmbed = new EmbedBuilder()
-        .setTitle('<:Rules:1517297885283094711> **ORBITAL-INTERNATIONAL • COMMUNITY RULES** :rocket:')
+        .setTitle('<:Rules:1517297885283094711> **ORBITAL-INTERNATIONAL • RULES** :rocket:')
         .setDescription('Welcome to the space station. To maintain a safe, private, and productive environment for learning and connection, all members must follow these guidelines.\n\n:link: **Official Discord Guidelines:**\nAs an official community, we comply with Discord\'s policies. All members are required to follow their guidelines:\n• Discord Terms of Service: https://discord.com/terms\n• Discord Community Guidelines: https://discord.com/guidelines')
         .setColor(0x5865F2)
-        .setImage(GIF_RULES)
         .addFields(
-          { name: ':ringed_planet: ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ :ringed_planet:', value: '\u200B', inline: false },
+          { name: ':ringed_planet: ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ :ringed_planet:', value: '\u200B', inline: false },
           { name: ':pushpin: **1. EQUALITY & RESPECT (ALL ARE EQUAL)**', value: 'There is no hierarchy here. Every member is equal. Treat everyone with respect, regardless of their nationality, background, or skill level. Toxicity, racism, or discrimination is strictly banable.', inline: false },
           { name: ':pushpin: **2. LEARNING MATURITY & PATIENCE**', value: 'This is a language learning space. Laughing at or mocking someone who is starting to speak or learn a new language is strictly prohibited. Have the maturity to support and help others grow.', inline: false },
           { name: ':pushpin: **3. POLITICAL DISCUSSIONS & EXPRESSION**', value: 'We believe in freedom of expression. Political topics and complex discussions are allowed, but they are **strictly limited**. Do not abuse this freedom. If a discussion becomes heated or divisive, staff will shut it down immediately.', inline: false },
@@ -60,29 +98,16 @@ module.exports = {
             .setStyle(ButtonStyle.Success)
         );
 
-      const messages = await rulesChannel.messages.fetch({ limit: 50 }).catch(err => {
-        console.error(`[Rules] Failed to fetch messages: ${err.message}`);
-        return new Map();
-      });
-
-      let rulesMsg = null;
-      for (const [, msg] of messages) {
-        if (msg.author.id === client.user.id && msg.embeds.length > 0) {
-          const title = msg.embeds[0].title || '';
-          if (title.includes('COMMUNITY RULES')) { rulesMsg = msg; break; }
-        }
-      }
-
       try {
         if (rulesMsg) {
           await rulesMsg.edit({ embeds: [rulesEmbed], components: [rulesRow] });
-          console.log('✅ Rules panel updated.');
+          console.log('✅ Rules embed updated.');
         } else {
           await rulesChannel.send({ embeds: [rulesEmbed], components: [rulesRow] });
-          console.log('✅ Rules panel sent.');
+          console.log('✅ Rules embed sent.');
         }
       } catch (err) {
-        console.error(`❌ Error with rules panel: ${err.message}`);
+        console.error(`❌ Error with rules embed: ${err.message}`);
       }
     }
 
