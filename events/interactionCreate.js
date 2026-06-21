@@ -857,3 +857,122 @@ async function handleTicketClose(interaction, client, closeReason = null) {
       <strong>${t.date}:</strong> ${new Date().toUTCString()} | 
       <strong>${t.messages}:</strong> ${allMessages.length}${closeReason ? ` | <strong>Reason:</strong> ${escapeHtml(closeReason)}` : ''}
     </div>
+  </div>
+  <div class="messages">\n`;
+
+    for (const msg of allMessages) {
+      const time = msg.createdAt.toLocaleString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      const avatar = msg.author.displayAvatarURL({ size: 64 }) || msg.author.defaultAvatarURL;
+      const text = msg.content ? escapeHtml(msg.content).replace(/\n/g, '<br>') : '<em style="color:#72767d">[No text content]</em>';
+
+      let attachmentsHtml = '';
+      if (msg.attachments.size > 0) {
+        attachmentsHtml = '<div class="attachments">';
+        msg.attachments.forEach(att => {
+          if (att.contentType && att.contentType.startsWith('image/')) {
+            attachmentsHtml += `<a href="${att.url}" target="_blank"><img src="${att.url}" style="max-width:300px;max-height:200px;border-radius:4px;margin-top:4px;"></a><br>`;
+          } else {
+            attachmentsHtml += `<a href="${att.url}" target="_blank">📎 ${att.name}</a><br>`;
+          }
+        });
+        attachmentsHtml += '</div>';
+      }
+
+      htmlContent += `    <div class="message">
+      <img class="avatar" src="${avatar}" alt="${msg.author.username}">
+      <div class="content">
+        <div class="author">${escapeHtml(msg.author.username)}<span class="timestamp">${time}</span></div>
+        <div class="text">${text}</div>
+        ${attachmentsHtml}
+      </div>
+    </div>\n`;
+    }
+
+    htmlContent += `  </div>
+  <div class="footer">
+    Orbital International • Ticket Transcript • Generated ${new Date().toUTCString()}
+  </div>
+</body>
+</html>`;
+
+    const txtPath = path.join('/tmp', `${baseFileName}.txt`);
+    const htmlPath = path.join('/tmp', `${baseFileName}.html`);
+
+    fs.writeFileSync(txtPath, txtContent, 'utf8');
+    fs.writeFileSync(htmlPath, htmlContent, 'utf8');
+
+    const txtAttachment = new AttachmentBuilder(txtPath, { name: `${baseFileName}.txt` });
+    const htmlAttachment = new AttachmentBuilder(htmlPath, { name: `${baseFileName}.html` });
+
+    // Log: Ticket Closed with Transcript (always in English)
+    const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
+    if (logsChannel) {
+      const logEmbed = new EmbedBuilder()
+        .setTitle('🔴 Ticket Closed & Transcript')
+        .setDescription(LOG_MSG.closed(channel, member, allMessages.length, closeReason))
+        .setColor(0xED4245)
+        .setTimestamp();
+
+      await logsChannel.send({
+        embeds: [logEmbed],
+        files: [txtAttachment, htmlAttachment]
+      }).catch(err => console.error('Failed to send transcript:', err));
+    }
+
+    try {
+      fs.unlinkSync(txtPath);
+      fs.unlinkSync(htmlPath);
+    } catch (e) {}
+
+    setTimeout(async () => {
+      await channel.delete().catch(err => {
+        console.error('Failed to delete ticket channel:', err);
+      });
+    }, 3000);
+
+  } catch (err) {
+    console.error('Ticket close error:', err);
+    await interaction.editReply({
+      content: t.errorClose
+    });
+    setTimeout(() => channel.delete().catch(() => {}), 3000);
+  }
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// ─── VERIFICATION HANDLER ───
+async function handleVerification(interaction) {
+  const memberRoleId = ROLE_IDS.member;
+
+  const memberRole = interaction.guild.roles.cache.get(memberRoleId);
+  if (!memberRole) {
+    return await interaction.reply({
+      content: '❌ Member role not found. Please contact a Staff member.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  if (interaction.member.roles.cache.has(memberRoleId)) {
+    return await interaction.reply({
+      content: '✅ You have already accepted the rules.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  await interaction.member.roles.add(memberRoleId);
+  await interaction.reply({
+    content: '✅ Welcome aboard, Orbiter! Rules accepted.',
+    flags: MessageFlags.Ephemeral
+  });
+}
