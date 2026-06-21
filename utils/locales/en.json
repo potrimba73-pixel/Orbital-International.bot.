@@ -1,0 +1,171 @@
+{
+  "common": {
+    "error": "❌ An error occurred.",
+    "no_permission": "❌ You don't have permission to use this command.",
+    "not_found": "❌ Not found.",
+    "success": "✅ Success!",
+    "loading": "⏳ Loading...",
+    "cancelled": "❌ Cancelled.",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "skip": "Skip",
+    "done": "Done!",
+    "bot_latency": "Bot Latency",
+    "api_latency": "API Latency",
+    "pong": "🏓 Pong!"
+  },
+  "configme": {
+    "step1": "🌍 **Step 1/5**: What is your **native language**?",
+    "step2": "📚 **Step 2/5**: What language do you want to **learn**?",
+    "step3": "🎂 **Step 3/5**: What is your **age group**?",
+    "step4": "🌎 **Step 4/5**: What **region** are you from?",
+    "step5": "⚧ **Step 5/5**: What is your **gender**?",
+    "completed": "🎉 **Profile completed!** Welcome to Orbital International!",
+    "already_setup": "⚠️ You already have a profile set up! Use `/mystats` to see it.",
+    "native_placeholder": "What languages do you speak?",
+    "learning_placeholder": "What language do you want to learn?",
+    "age_placeholder": "Select your age group",
+    "region_placeholder": "Select your region",
+    "gender_placeholder": "Select your gender",
+    "welcome_title": "🌍 Welcome to Orbital International!",
+    "welcome_desc": "You have been assigned roles based on your profile. Check out the language channels and start learning!",
+    "rules_channel": "📜 Read the rules in <#{channel}>"
+  },
+  "findpartner": {
+    "no_profile": "❌ You need to set up your profile first! Use `/configme` to set your native and learning languages.",
+    "no_partners": "🔍 No partners found for **{learning}** learners right now.\n\nYour profile: Native **{native}** → Learning **{learning}**\nTry again later or check the language channels!",
+    "title": "🤝 Language Partners for You",
+    "your_profile": "Your profile: Native **{native}** → Learning **{learning}**",
+    "perfect_match": "✨ Perfect Match!",
+    "same_learning": "📚 Same Learning",
+    "native": "Native: {lang}",
+    "learning": "Learning: {lang}",
+    "level": "Level: {level}",
+    "xp": "XP: {xp}",
+    "coming_soon": "Click a button to send a DM request (coming soon!)"
+  },
+  "mystats": {
+    "no_stats": "❌ No stats found! Use `/configme` to set up your profile first.",
+    "title": "📊 Your Stats",
+    "level": "⭐ Current Level",
+    "xp": "📈 Total XP",
+    "next_level": "🎯 Next Level",
+    "progress": "Progress",
+    "messages": "💬 Messages Sent",
+    "voice": "🎤 Voice Minutes",
+    "native": "🗣️ Native Language",
+    "learning": "📚 Learning Language",
+    "footer": "Keep chatting to earn more XP!"
+  },
+  "leaderboard": {
+    "no_stats": "🔍 No stats yet! Start chatting to earn XP.",
+    "title": "🏆 Top Learners",
+    "desc": "Anonymous leaderboard - no personal data exposed!",
+    "footer": "Updated in real-time",
+    "level": "Level {level}",
+    "messages": "{count} messages"
+  },
+  "translate": {
+    "failed": "❌ Translation failed. Please try again later.",
+    "title": "🌐 Translation",
+    "original": "📤 Original ({lang})",
+    "translation": "📥 Translation ({lang})",
+    "transliteration": "📝 Transliteration (Latin)",
+    "footer": "Powered by Google Translate"
+  },
+  "help": {
+    "title": "🌍 Orbital International - Help",
+    "desc": "Anonymous language learning community",
+    "language_title": "🎓 Language Learning",
+    "language_desc": "`/configme` - Set up your language profile\n`/translate` - Translate text between languages\n`/findpartner` - Find a language exchange partner",
+    "stats_title": "📊 Stats",
+    "stats_desc": "`/mystats` - Your anonymous stats\n`/leaderboard` - Top learners leaderboard",
+    "general_title": "⚙️ General",
+    "general_desc": "`/help` - This menu\n`/ping` - Bot latency",
+    "footer": "Use /configme to set your language! | Staff: use /staffhelp"
+  },
+  "staffhelp": {
+    "title": "🛡️ Staff Commands - Orbital International",
+    "desc": "Restricted commands for server moderation",
+    "mod_title": "📋 Moderation",
+    "mod_desc": "`/limpar` - Clear messages\n`/anuncio` - Send announcement\n`/verificar` - Check who accepted rules",
+    "setup_title": "🔧 Setup",
+    "setup_desc": "`/setupchannels` - Auto-create language channels\n`/regras` - Send rules panel",
+    "user_title": "👤 User Info",
+    "user_desc": "`/userinfo` - Show detailed user info\n`/canalinfo` - Voice channel info\n`/serverinfo` - Show all server IDs",
+    "bot_title": "⚙️ Bot",
+    "bot_desc": "`/ping` - Check bot latency",
+    "footer": "Orbital International Staff Panel"
+  },
+  "ping": {
+    "calculating": "Calculating..."
+  },
+  "limpar": {
+    "cleared": "✅ Cleared {count} messages.",
+    "failed": "❌ Could not delete messages. They may be older than 14 days."
+  },
+  "verificar": {
+    "not_configured": "❌ Member role not configured.",
+    "title": "✅ Verification Status",
+    "verified": "✅ Verified",
+    "unverified": "⏳ Unverified",
+    "verified_count": "{count} members",
+    "unverified_count": "{count} members",
+    "all_verified": "All verified!",
+    "unverified_users": "Unverified Users"
+  },
+  "userinfo": {
+    "not_found": "❌ User not found in this server.",
+    "title": "👤 {tag}",
+    "user_id": "🆔 User ID",
+    "joined": "📅 Joined Server",
+    "created": "🎂 Account Created",
+    "age_role": "🎭 Age Role",
+    "lang_roles": "🗣️ Language Roles",
+    "privacy": "🌍 Profile Privacy",
+    "privacy_public": "🌐 Public",
+    "privacy_private": "🔒 Private",
+    "native": "📚 Native Language",
+    "learning": "🎯 Learning Language",
+    "xp_level": "⭐ XP Level",
+    "no_data": "No data",
+    "not_set": "Not set (use /configme)",
+    "none": "None",
+    "footer": "Requested by {tag}"
+  },
+  "anuncio": {
+    "sent": "✅ Announcement sent to {channel}!"
+  },
+  "canalinfo": {
+    "not_voice": "❌ This is not a voice channel!",
+    "title": "🔊 {name}",
+    "channel_id": "🆔 Channel ID",
+    "user_limit": "👥 User Limit",
+    "members": "👤 Members",
+    "empty": "Empty"
+  },
+  "serverinfo": {
+    "title": "📊 {name} - Server Info",
+    "server_id": "🏠 Server ID",
+    "members": "👥 Members",
+    "created": "📅 Created",
+    "categories": "📁 Categories",
+    "text_channels": "💬 Text Channels",
+    "voice_channels": "🔊 Voice Channels",
+    "roles": "🎭 Roles",
+    "none": "None",
+    "footer": "Requested by {tag}"
+  },
+  "setupchannels": {
+    "success": "✅ Language channels created successfully!"
+  },
+  "serverroles": {
+    "no_roles": "No roles found!",
+    "title": "🎭 Server Roles",
+    "footer": "Total: {count} roles | Server: {name}"
+  }
+}
