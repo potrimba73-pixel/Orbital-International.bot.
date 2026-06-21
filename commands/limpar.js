@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,17 +15,19 @@ module.exports = {
 
   async execute(interaction) {
     const amount = interaction.options.getInteger('amount');
+    const lang = await i18n.getUserLang(interaction.user.id);
 
-    await interaction.channel.bulkDelete(amount, true).catch(() => {
-      return interaction.reply({
-        content: '❌ Could not delete messages. They may be older than 14 days.',
+    try {
+      const deleted = await interaction.channel.bulkDelete(amount, true);
+      await interaction.reply({
+        content: '✅ ' + i18n.get(lang, 'limpar.cleared', { count: deleted.size }),
         flags: MessageFlags.Ephemeral
       });
-    });
-
-    await interaction.reply({
-      content: `✅ Cleared ${amount} messages.`,
-      flags: MessageFlags.Ephemeral
-    });
+    } catch (err) {
+      await interaction.reply({
+        content: '❌ ' + i18n.get(lang, 'limpar.failed'),
+        flags: MessageFlags.Ephemeral
+      });
+    }
   }
 };
