@@ -42,11 +42,11 @@ const ROLE_IDS = {
 
 const ROLE_NAMES = {
   native: {
-    pt: 'Português (Portuguese) Speaker',
-    en: 'English Speaker',
-    es: 'Español (Spanish) Speaker',
-    ru: 'Русский (Russian) Speaker',
-    fr: 'Français (French) Speaker'
+    pt: 'Português (Portuguese)',
+    en: 'English',
+    es: 'Español (Spanish)',
+    ru: 'Русский (Russian)',
+    fr: 'Français (French)'
   },
   learning: {
     pt: 'Learning Português (Portuguese)',
@@ -77,7 +77,7 @@ const ROLE_NAMES = {
 };
 
 // ─── TICKET CONFIG ───
-const TICKET_CATEGORY_ID = '1515381294261862571';
+const TICKET_CATEGORY_ID = '1518043327814041640';
 const STAFF_ROLE_ID = '1515151599503282227';
 const LOGS_CHANNEL_ID = '1515419876859314306';
 
@@ -86,6 +86,14 @@ const TICKET_LABELS = {
   report: '🛡️ Report User',
   language: '🌍 Language Help',
   other: '🛸 Other / Partnership'
+};
+
+// Abbreviations for channel names
+const TICKET_ABBREV = {
+  general: 'gen',
+  report: 'rep',
+  language: 'lang',
+  other: 'oth'
 };
 
 module.exports = {
@@ -115,6 +123,10 @@ module.exports = {
         return;
       }
       if (interaction.customId === 'ticket_create') {
+        await handleTicketLanguageSelect(interaction, client);
+        return;
+      }
+      if (interaction.customId.startsWith('ticket_reason_')) {
         await handleTicketCreate(interaction, client);
         return;
       }
@@ -199,16 +211,74 @@ async function handleOnboarding(interaction) {
   });
 }
 
+// ─── TICKET LANGUAGE SELECTION ───
+async function handleTicketLanguageSelect(interaction, client) {
+  const member = interaction.member;
+  const reason = interaction.values[0];
+
+  // Get languages the user speaks (from native roles)
+  const userLanguages = [];
+  for (const [lang, roleId] of Object.entries(ROLE_IDS.native)) {
+    if (member.roles.cache.has(roleId)) {
+      userLanguages.push({ value: lang, label: ROLE_NAMES.native[lang], emoji: getLangEmoji(lang) });
+    }
+  }
+
+  // If user has no language roles, allow all languages
+  if (userLanguages.length === 0) {
+    userLanguages.push(
+      { value: 'pt', label: '🇵🇹 Português (Portuguese)', emoji: '🇵🇹' },
+      { value: 'en', label: '🇬🇧 English', emoji: '🇬🇧' },
+      { value: 'ru', label: '🇷🇺 Русский (Russian)', emoji: '🇷🇺' },
+      { value: 'es', label: '🇪🇸 Español (Spanish)', emoji: '🇪🇸' },
+      { value: 'fr', label: '🇫🇷 Français (French)', emoji: '🇫🇷' }
+    );
+  }
+
+  const languageEmbed = new EmbedBuilder()
+    .setTitle('🌌 ORBITAL HUB • SELECT TICKET LANGUAGE')
+    .setDescription(`You selected: **${TICKET_LABELS[reason]}**\n\nPlease select the language you want to use for this ticket. Choose a language you are comfortable with:`)
+    .setColor(0x2E0854)
+    .setFooter({ text: 'Orbital International • Support', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+
+  const languageMenu = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(`ticket_reason_${reason}`)
+      .setPlaceholder('🌐 Select ticket language...')
+      .setMinValues(1)
+      .setMaxValues(1)
+      .addOptions(...userLanguages.map(lang => ({
+        label: lang.label,
+        value: `${reason}_${lang.value}`,
+        emoji: lang.emoji
+      })))
+  );
+
+  await interaction.reply({
+    embeds: [languageEmbed],
+    components: [languageMenu],
+    flags: MessageFlags.Ephemeral
+  });
+}
+
+function getLangEmoji(lang) {
+  const emojis = { pt: '🇵🇹', en: '🇬🇧', ru: '🇷🇺', es: '🇪🇸', fr: '🇫🇷' };
+  return emojis[lang] || '🌐';
+}
+
 // ─── TICKET CREATE HANDLER ───
 async function handleTicketCreate(interaction, client) {
   const member = interaction.member;
-  const reason = interaction.values[0];
+  const selectedValue = interaction.values[0];
+  const [reason, language] = selectedValue.split('_');
   const guild = interaction.guild;
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
+  // Check for existing ticket
+  const usernameClean = member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
   const existingTicket = guild.channels.cache.find(ch => 
-    ch.name === `ticket-${member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+    ch.name.startsWith(`t-${usernameClean}-`)
   );
 
   if (existingTicket) {
@@ -218,8 +288,15 @@ async function handleTicketCreate(interaction, client) {
   }
 
   try {
+    const langName = ROLE_NAMES.native[language] || language.toUpperCase();
+    const reasonAbbr = TICKET_ABBREV[reason] || reason;
+
+    // Channel name format: t-{username}-{reason}-{lang}
+    // e.g., t-arteex-rep-en, t-arteex-gen-pt
+    const channelName = `t-${usernameClean}-${reasonAbbr}-${language}`;
+
     const ticketChannel = await guild.channels.create({
-      name: `ticket-${member.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+      name: channelName,
       type: ChannelType.GuildText,
       parent: TICKET_CATEGORY_ID,
       permissionOverwrites: [
@@ -240,7 +317,7 @@ async function handleTicketCreate(interaction, client) {
 
     const ticketEmbed = new EmbedBuilder()
       .setTitle('🌌 ORBITAL HUB • TICKET OPENED')
-      .setDescription(`Hello ${member}, your ticket has been created.\n\n**Reason:** ${TICKET_LABELS[reason]}\n**User:** ${member.user.tag}\n**ID:** ${member.id}\n\nPlease describe your issue in detail. A Staff member will assist you shortly.`)
+      .setDescription(`Hello ${member}, your ticket has been created.\n\n**Reason:** ${TICKET_LABELS[reason]}\n**Language:** ${langName}\n**User:** ${member.user.tag}\n**ID:** ${member.id}\n\nPlease describe your issue in detail. A Staff member will assist you shortly.`)
       .setColor(0x2E0854)
       .setTimestamp();
 
@@ -259,7 +336,7 @@ async function handleTicketCreate(interaction, client) {
     });
 
     await interaction.editReply({
-      content: `✅ Your ticket has been created: ${ticketChannel}`
+      content: `✅ Your ticket has been created: ${ticketChannel}\n**Language:** ${langName}`
     });
 
     // Log to logs channel
@@ -267,7 +344,7 @@ async function handleTicketCreate(interaction, client) {
     if (logsChannel) {
       const logEmbed = new EmbedBuilder()
         .setTitle('🎫 Ticket Created')
-        .setDescription(`**User:** ${member.user.tag} (${member.id})\n**Reason:** ${TICKET_LABELS[reason]}\n**Channel:** ${ticketChannel}`)
+        .setDescription(`**User:** ${member.user.tag} (${member.id})\n**Reason:** ${TICKET_LABELS[reason]}\n**Language:** ${langName}\n**Channel:** ${ticketChannel}`)
         .setColor(0x57F287)
         .setTimestamp();
       await logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
@@ -286,7 +363,7 @@ async function handleTicketClose(interaction, client) {
   const channel = interaction.channel;
   const member = interaction.member;
 
-  if (!channel.name.startsWith('ticket-')) {
+  if (!channel.name.startsWith('t-')) {
     return interaction.reply({
       content: '❌ This is not a ticket channel.',
       flags: MessageFlags.Ephemeral
@@ -311,7 +388,6 @@ async function handleTicketClose(interaction, client) {
       if (fetched.size > 0) lastId = fetched.last().id;
     } while (fetched.size === 100);
 
-    // Reverse to chronological order
     allMessages.reverse();
 
     const ticketName = channel.name;
@@ -469,7 +545,6 @@ async function handleTicketClose(interaction, client) {
 }
 
 function escapeHtml(text) {
-  const div = { toString: () => text };
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
