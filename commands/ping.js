@@ -19,7 +19,7 @@ module.exports = {
     const apiLatency = Math.round(interaction.client.ws.ping);
 
     const embed = new EmbedBuilder()
-      .setTitle(i18n.get(lang, 'common.pong'))
+      .setTitle('🏓 Pong!')
       .setColor(0x57F287)
       .addFields(
         { name: i18n.get(lang, 'common.bot_latency'), value: `${latency}ms`, inline: true },
