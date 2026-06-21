@@ -96,17 +96,16 @@ const TICKET_ABBREV = {
 };
 
 // ─── LANGUAGE ROLE TO STAFF ACCESS MAP ───
-// Staff must have at least one of these roles to see tickets in that language
 const LANG_STAFF_ROLES = {
-  pt: ['1515151237740498996'], // native PT role OR staff can access PT tickets
+  pt: ['1515151237740498996'],
   en: ['1515151352966156449'],
   es: ['1515151464367128586'],
   ru: ['1515151422721622239'],
   fr: ['1515151532704923739']
 };
 
-// ─── TICKET TRANSLATIONS ───
-const TICKET_LANG = {
+// ─── TICKET UI TRANSLATIONS (for ticket channel embeds/buttons) ───
+const TICKET_UI = {
   pt: {
     title: '🌌 ORBITAL HUB • TICKET ABERTO',
     userInfo: '👤 Informação do Utilizador',
@@ -143,9 +142,6 @@ const TICKET_LANG = {
     created: (channel, langName) => `✅ O teu ticket foi criado: ${channel}\n**Idioma:** ${langName}`,
     existing: (channel) => `⚠️ Já tens um ticket aberto: ${channel}`,
     fail: '❌ Falha ao criar ticket. Contacta um membro da Staff.',
-    logCreated: (member, reason, langName, channel) => `**Utilizador:** ${member.user.tag} (${member.id})\n**Motivo:** ${TICKET_LABELS[reason]}\n**Idioma:** ${langName}\n**Canal:** ${channel}`,
-    logClaimed: (member, staff, channel) => `**Canal:** ${channel}\n**Aberto por:** ${member.user.tag} (${member.id})\n**Assumido por:** ${staff.user.tag} (${staff.id})`,
-    logClosed: (channel, member, count, reason) => `**Canal:** ${channel.name}\n**Fechado por:** ${member.user.tag} (${member.id})\n**Mensagens:** ${count}\n**Razão:** ${reason || 'Não especificada'}`,
     closeMsg: '🔒 A gerar transcript e a fechar ticket...',
     notTicket: '❌ Este não é um canal de ticket.',
     transcriptTitle: '  ORBITAL INTERNATIONAL - TICKET TRANSCRIPT',
@@ -197,9 +193,6 @@ const TICKET_LANG = {
     created: (channel, langName) => `✅ Your ticket has been created: ${channel}\n**Language:** ${langName}`,
     existing: (channel) => `⚠️ You already have an open ticket: ${channel}`,
     fail: '❌ Failed to create ticket. Please contact a Staff member.',
-    logCreated: (member, reason, langName, channel) => `**User:** ${member.user.tag} (${member.id})\n**Reason:** ${TICKET_LABELS[reason]}\n**Language:** ${langName}\n**Channel:** ${channel}`,
-    logClaimed: (member, staff, channel) => `**Channel:** ${channel}\n**Opened by:** ${member.user.tag} (${member.id})\n**Claimed by:** ${staff.user.tag} (${staff.id})`,
-    logClosed: (channel, member, count, reason) => `**Channel:** ${channel.name}\n**Closed by:** ${member.user.tag} (${member.id})\n**Messages:** ${count}\n**Reason:** ${reason || 'Not specified'}`,
     closeMsg: '🔒 Generating transcript and closing ticket...',
     notTicket: '❌ This is not a ticket channel.',
     transcriptTitle: '  ORBITAL INTERNATIONAL - TICKET TRANSCRIPT',
@@ -233,9 +226,6 @@ const TICKET_LANG = {
     created: (channel, langName) => `✅ Твой тикет создан: ${channel}\n**Язык:** ${langName}`,
     existing: (channel) => `⚠️ У тебя уже есть открытый тикет: ${channel}`,
     fail: '❌ Не удалось создать тикет. Свяжись с сотрудником.',
-    logCreated: (member, reason, langName, channel) => `**Пользователь:** ${member.user.tag} (${member.id})\n**Причина:** ${TICKET_LABELS[reason]}\n**Язык:** ${langName}\n**Канал:** ${channel}`,
-    logClaimed: (member, staff, channel) => `**Канал:** ${channel}\n**Открыл:** ${member.user.tag} (${member.id})\n**Взял:** ${staff.user.tag} (${staff.id})`,
-    logClosed: (channel, member, count, reason) => `**Канал:** ${channel.name}\n**Закрыл:** ${member.user.tag} (${member.id})\n**Сообщений:** ${count}\n**Причина:** ${reason || 'Не указана'}`,
     closeMsg: '🔒 Генерация transcript и закрытие тикета...',
     notTicket: '❌ Это не канал тикета.',
     transcriptTitle: '  ORBITAL INTERNATIONAL - TICKET TRANSCRIPT',
@@ -269,9 +259,6 @@ const TICKET_LANG = {
     created: (channel, langName) => `✅ Tu ticket ha sido creado: ${channel}\n**Idioma:** ${langName}`,
     existing: (channel) => `⚠️ Ya tienes un ticket abierto: ${channel}`,
     fail: '❌ Error al crear el ticket. Contacta con un miembro del Staff.',
-    logCreated: (member, reason, langName, channel) => `**Usuario:** ${member.user.tag} (${member.id})\n**Motivo:** ${TICKET_LABELS[reason]}\n**Idioma:** ${langName}\n**Canal:** ${channel}`,
-    logClaimed: (member, staff, channel) => `**Canal:** ${channel}\n**Abierto por:** ${member.user.tag} (${member.id})\n**Asumido por:** ${staff.user.tag} (${staff.id})`,
-    logClosed: (channel, member, count, reason) => `**Canal:** ${channel.name}\n**Cerrado por:** ${member.user.tag} (${member.id})\n**Mensajes:** ${count}\n**Razón:** ${reason || 'No especificada'}`,
     closeMsg: '🔒 Generando transcript y cerrando ticket...',
     notTicket: '❌ Este no es un canal de ticket.',
     transcriptTitle: '  ORBITAL INTERNATIONAL - TICKET TRANSCRIPT',
@@ -305,9 +292,6 @@ const TICKET_LANG = {
     created: (channel, langName) => `✅ Ton ticket a été créé : ${channel}\n**Langue :** ${langName}`,
     existing: (channel) => `⚠️ Tu as déjà un ticket ouvert : ${channel}`,
     fail: '❌ Échec de la création du ticket. Contacte un membre du Staff.',
-    logCreated: (member, reason, langName, channel) => `**Utilisateur :** ${member.user.tag} (${member.id})\n**Raison :** ${TICKET_LABELS[reason]}\n**Langue :** ${langName}\n**Canal :** ${channel}`,
-    logClaimed: (member, staff, channel) => `**Canal :** ${channel}\n**Ouvert par :** ${member.user.tag} (${member.id})\n**Pris par :** ${staff.user.tag} (${staff.id})`,
-    logClosed: (channel, member, count, reason) => `**Canal :** ${channel.name}\n**Fermé par :** ${member.user.tag} (${member.id})\n**Messages :** ${count}\n**Raison :** ${reason || 'Non spécifiée'}`,
     closeMsg: '🔒 Génération du transcript et fermeture du ticket...',
     notTicket: '❌ Ce n\'est pas un canal de ticket.',
     transcriptTitle: '  ORBITAL INTERNATIONAL - TICKET TRANSCRIPT',
@@ -323,6 +307,13 @@ const TICKET_LANG = {
     closeReasonLabel: 'Raison de la fermeture',
     claimMsg: (staff, opener) => `🟡 **Ticket pris par ${staff}** — assiste ${opener} maintenant.`
   }
+};
+
+// ─── LOG MESSAGES (always in English for staff) ───
+const LOG_MSG = {
+  created: (member, reason, langName, channel) => `**User:** ${member.user.tag} (${member.id})\n**Reason:** ${TICKET_LABELS[reason]}\n**Language:** ${langName}\n**Channel:** ${channel}`,
+  claimed: (member, staff, channel) => `**Channel:** ${channel}\n**Opened by:** ${member.user.tag} (${member.id})\n**Claimed by:** ${staff.user.tag} (${staff.id})`,
+  closed: (channel, member, count, reason) => `**Channel:** ${channel.name}\n**Closed by:** ${member.user.tag} (${member.id})\n**Messages:** ${count}\n**Reason:** ${reason || 'Not specified'}`
 };
 
 // ─── HELPER: Get user age/gender from roles ───
@@ -521,15 +512,13 @@ async function handleTicketLanguageSelect(interaction, client) {
     );
   }
 
-  const t = TICKET_LANG.en; // Warning always in English for consistency, or pick based on user's native role
-
   const languageEmbed = new EmbedBuilder()
     .setTitle('🌌 ORBITAL HUB • SELECT TICKET LANGUAGE')
     .setDescription(`You selected: **${TICKET_LABELS[reason]}**\n\nPlease select the language you want to use for this ticket. Choose a language you are comfortable with:`)
     .setColor(0x2E0854)
     .addFields({
-      name: t.warning,
-      value: t.warningText,
+      name: '⚠️ Important Notice',
+      value: 'Opening troll tickets or making fake reports to disturb the Staff will lead to an **immediate Mute or Kick**.',
       inline: false
     })
     .setFooter({ text: 'Orbital International • Support', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
@@ -566,7 +555,7 @@ async function handleTicketCreate(interaction, client) {
   const [reason, language] = selectedValue.split('_');
   const guild = interaction.guild;
 
-  const t = TICKET_LANG[language] || TICKET_LANG.en;
+  const t = TICKET_UI[language] || TICKET_UI.en;
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -586,7 +575,6 @@ async function handleTicketCreate(interaction, client) {
     const reasonAbbr = TICKET_ABBREV[reason] || reason;
     const channelName = `t-${usernameClean}-${reasonAbbr}-${language}`;
 
-    // Build permission overwrites with language-based staff access
     const permissionOverwrites = [
       {
         id: guild.id,
@@ -598,13 +586,11 @@ async function handleTicketCreate(interaction, client) {
       }
     ];
 
-    // Staff role always sees everything (head staff)
     permissionOverwrites.push({
       id: STAFF_ROLE_ID,
       allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
     });
 
-    // Add language-specific staff roles
     const langStaffRoles = LANG_STAFF_ROLES[language] || [];
     for (const roleId of langStaffRoles) {
       if (roleId !== STAFF_ROLE_ID) {
@@ -674,12 +660,12 @@ async function handleTicketCreate(interaction, client) {
       components: [redirectRow]
     });
 
-    // Log: Ticket Created
+    // Log: Ticket Created (always in English)
     const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
     if (logsChannel) {
       const logEmbed = new EmbedBuilder()
         .setTitle('🟢 Ticket Opened')
-        .setDescription(t.logCreated(member, reason, langName, ticketChannel))
+        .setDescription(LOG_MSG.created(member, reason, langName, ticketChannel))
         .setColor(0x57F287)
         .setTimestamp();
 
@@ -715,9 +701,8 @@ async function handleTicketClaim(interaction, client) {
   }
 
   const langFromName = channel.name.split('-').pop();
-  const t = TICKET_LANG[langFromName] || TICKET_LANG.en;
+  const t = TICKET_UI[langFromName] || TICKET_UI.en;
 
-  // Find the original ticket opener (first message mentions them)
   const messages = await channel.messages.fetch({ limit: 10 }).catch(() => new Map());
   let opener = null;
   for (const [, msg] of messages) {
@@ -729,7 +714,6 @@ async function handleTicketClaim(interaction, client) {
 
   const openerMention = opener ? `<@${opener.id}>` : 'user';
 
-  // Disable claim button
   const disabledRow = new ActionRowBuilder()
     .addComponents(
       new ButtonBuilder()
@@ -749,14 +733,14 @@ async function handleTicketClaim(interaction, client) {
     content: t.claimMsg(staff, openerMention)
   });
 
-  // Log: Ticket Claimed
+  // Log: Ticket Claimed (always in English)
   const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
   if (logsChannel && opener) {
     const member = await channel.guild.members.fetch(opener.id).catch(() => null);
     if (member) {
       const logEmbed = new EmbedBuilder()
         .setTitle('🟡 Ticket Claimed')
-        .setDescription(t.logClaimed(member, staff, channel))
+        .setDescription(LOG_MSG.claimed(member, staff, channel))
         .setColor(0xFEE75C)
         .setTimestamp();
 
@@ -779,7 +763,7 @@ async function handleTicketClose(interaction, client, closeReason = null) {
   const member = interaction.member;
 
   const langFromName = channel.name.split('-').pop();
-  const t = TICKET_LANG[langFromName] || TICKET_LANG.en;
+  const t = TICKET_UI[langFromName] || TICKET_UI.en;
 
   if (!channel.name.startsWith('t-')) {
     return interaction.reply({
@@ -873,122 +857,3 @@ async function handleTicketClose(interaction, client, closeReason = null) {
       <strong>${t.date}:</strong> ${new Date().toUTCString()} | 
       <strong>${t.messages}:</strong> ${allMessages.length}${closeReason ? ` | <strong>Reason:</strong> ${escapeHtml(closeReason)}` : ''}
     </div>
-  </div>
-  <div class="messages">\n`;
-
-    for (const msg of allMessages) {
-      const time = msg.createdAt.toLocaleString('en-US', { 
-        month: 'short', day: 'numeric', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      });
-      const avatar = msg.author.displayAvatarURL({ size: 64 }) || msg.author.defaultAvatarURL;
-      const text = msg.content ? escapeHtml(msg.content).replace(/\n/g, '<br>') : '<em style="color:#72767d">[No text content]</em>';
-
-      let attachmentsHtml = '';
-      if (msg.attachments.size > 0) {
-        attachmentsHtml = '<div class="attachments">';
-        msg.attachments.forEach(att => {
-          if (att.contentType && att.contentType.startsWith('image/')) {
-            attachmentsHtml += `<a href="${att.url}" target="_blank"><img src="${att.url}" style="max-width:300px;max-height:200px;border-radius:4px;margin-top:4px;"></a><br>`;
-          } else {
-            attachmentsHtml += `<a href="${att.url}" target="_blank">📎 ${att.name}</a><br>`;
-          }
-        });
-        attachmentsHtml += '</div>';
-      }
-
-      htmlContent += `    <div class="message">
-      <img class="avatar" src="${avatar}" alt="${msg.author.username}">
-      <div class="content">
-        <div class="author">${escapeHtml(msg.author.username)}<span class="timestamp">${time}</span></div>
-        <div class="text">${text}</div>
-        ${attachmentsHtml}
-      </div>
-    </div>\n`;
-    }
-
-    htmlContent += `  </div>
-  <div class="footer">
-    Orbital International • Ticket Transcript • Generated ${new Date().toUTCString()}
-  </div>
-</body>
-</html>`;
-
-    const txtPath = path.join('/tmp', `${baseFileName}.txt`);
-    const htmlPath = path.join('/tmp', `${baseFileName}.html`);
-
-    fs.writeFileSync(txtPath, txtContent, 'utf8');
-    fs.writeFileSync(htmlPath, htmlContent, 'utf8');
-
-    const txtAttachment = new AttachmentBuilder(txtPath, { name: `${baseFileName}.txt` });
-    const htmlAttachment = new AttachmentBuilder(htmlPath, { name: `${baseFileName}.html` });
-
-    // Log: Ticket Closed with Transcript
-    const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
-    if (logsChannel) {
-      const logEmbed = new EmbedBuilder()
-        .setTitle('🔴 Ticket Closed & Transcript')
-        .setDescription(t.logClosed(channel, member, allMessages.length, closeReason))
-        .setColor(0xED4245)
-        .setTimestamp();
-
-      await logsChannel.send({
-        embeds: [logEmbed],
-        files: [txtAttachment, htmlAttachment]
-      }).catch(err => console.error('Failed to send transcript:', err));
-    }
-
-    try {
-      fs.unlinkSync(txtPath);
-      fs.unlinkSync(htmlPath);
-    } catch (e) {}
-
-    setTimeout(async () => {
-      await channel.delete().catch(err => {
-        console.error('Failed to delete ticket channel:', err);
-      });
-    }, 3000);
-
-  } catch (err) {
-    console.error('Ticket close error:', err);
-    await interaction.editReply({
-      content: t.errorClose
-    });
-    setTimeout(() => channel.delete().catch(() => {}), 3000);
-  }
-}
-
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-// ─── VERIFICATION HANDLER ───
-async function handleVerification(interaction) {
-  const memberRoleId = ROLE_IDS.member;
-
-  const memberRole = interaction.guild.roles.cache.get(memberRoleId);
-  if (!memberRole) {
-    return await interaction.reply({
-      content: '❌ Member role not found. Please contact a Staff member.',
-      flags: MessageFlags.Ephemeral
-    });
-  }
-
-  if (interaction.member.roles.cache.has(memberRoleId)) {
-    return await interaction.reply({
-      content: '✅ You have already accepted the rules.',
-      flags: MessageFlags.Ephemeral
-    });
-  }
-
-  await interaction.member.roles.add(memberRoleId);
-  await interaction.reply({
-    content: '✅ Welcome aboard, Orbiter! Rules accepted.',
-    flags: MessageFlags.Ephemeral
-  });
-}
