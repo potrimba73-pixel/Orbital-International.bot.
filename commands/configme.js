@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
-// Role IDs from Orbital-International server
 const ROLE_IDS = {
   native: {
     pt: '1515151237740498996',
@@ -30,18 +30,31 @@ const ROLE_IDS = {
     africa_me: '1515740271835349022',
     asia_oceania: '1515740516338241679'
   },
+  gender: {
+    male: 'ADD_MALE_ROLE_ID',
+    female: 'ADD_FEMALE_ROLE_ID',
+    other: 'ADD_OTHER_ROLE_ID',
+    prefer_not: 'ADD_PREFER_NOT_ROLE_ID'
+  },
   member: '1515151179019980931'
 };
 
-// Rules channel for welcome message
 const RULES_CHANNEL_ID = '1515151037344907336';
 
 const nativeOptions = [
-  { label: 'Portugues (Portuguese)', value: 'pt', description: 'Português', emoji: { name: '🇵🇹' } },
+  { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: '🇵🇹' } },
   { label: 'English', value: 'en', description: 'English', emoji: { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' } },
-  { label: 'Russkij (Russian)', value: 'ru', description: 'Русский', emoji: { name: '🇷🇺' } },
-  { label: 'Espanol (Spanish)', value: 'es', description: 'Español', emoji: { name: '🇪🇸' } },
-  { label: 'Francais (French)', value: 'fr', description: 'Français', emoji: { name: '🇫🇷' } }
+  { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: '🇷🇺' } },
+  { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: '🇪🇸' } },
+  { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: '🇫🇷' } }
+];
+
+const learningOptions = [
+  { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: '🇵🇹' } },
+  { label: 'English', value: 'en', description: 'English', emoji: { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' } },
+  { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: '🇷🇺' } },
+  { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: '🇪🇸' } },
+  { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: '🇫🇷' } }
 ];
 
 const regionOptions = [
@@ -60,27 +73,40 @@ const ageOptions = [
   { label: '20-22 years', value: '20-22', description: '20-22 years old', emoji: { name: '🟣' } }
 ];
 
+const genderOptions = [
+  { label: 'Male', value: 'male', description: 'Male', emoji: { name: '♂️' } },
+  { label: 'Female', value: 'female', description: 'Female', emoji: { name: '♀️' } },
+  { label: 'Other', value: 'other', description: 'Other', emoji: { name: '⚧' } },
+  { label: 'Prefer not to say', value: 'prefer_not', description: 'Prefer not to say', emoji: { name: '🤐' } }
+];
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('configme')
     .setDescription('Set up your language learning profile with dropdowns'),
 
   async execute(interaction) {
+    const lang = await i18n.getUserLang(interaction.user.id);
+
     const menu = new ActionRowBuilder().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('configme_native')
-        .setPlaceholder('What languages do you speak?')
+        .setPlaceholder(i18n.get(lang, 'configme.native_placeholder'))
         .addOptions(nativeOptions)
     );
 
     await interaction.reply({
-      content: '🌍 **Step 1/4**: What is your **native language**?',
+      content: i18n.get(lang, 'configme.step1'),
       components: [menu],
       flags: MessageFlags.Ephemeral
     });
   }
 };
 
-// Export role IDs for use in interactionCreate.js
 module.exports.ROLE_IDS = ROLE_IDS;
 module.exports.RULES_CHANNEL_ID = RULES_CHANNEL_ID;
+module.exports.nativeOptions = nativeOptions;
+module.exports.learningOptions = learningOptions;
+module.exports.regionOptions = regionOptions;
+module.exports.ageOptions = ageOptions;
+module.exports.genderOptions = genderOptions;
