@@ -245,14 +245,6 @@ module.exports = {
           )
       );
 
-      const ticketRedirectRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setLabel('🔗 Go to #open-ticket')
-          .setStyle(ButtonStyle.Link)
-          .setURL('https://discord.com/channels/' + ticketChannel.guild.id + '/' + TICKET_CHANNEL_ID)
-          .setEmoji('🎟️')
-      );
-
       const ticketMessages = await ticketChannel.messages.fetch({ limit: 50 }).catch(err => {
         console.error(`[Tickets] Failed to fetch messages: ${err.message}`);
         return new Map();
@@ -268,11 +260,11 @@ module.exports = {
 
       try {
         if (ticketMsg) {
-          await ticketMsg.edit({ embeds: [ticketEmbed], components: [ticketMenu, ticketRedirectRow] });
-          console.log('✅ Ticket panel updated with redirect button.');
+          await ticketMsg.edit({ embeds: [ticketEmbed], components: [ticketMenu] });
+          console.log('✅ Ticket panel updated.');
         } else {
-          await ticketChannel.send({ embeds: [ticketEmbed], components: [ticketMenu, ticketRedirectRow] });
-          console.log('✅ Ticket panel sent with redirect button.');
+          await ticketChannel.send({ embeds: [ticketEmbed], components: [ticketMenu] });
+          console.log('✅ Ticket panel sent.');
         }
       } catch (err) {
         console.error(`❌ Error with ticket panel: ${err.message}`);
