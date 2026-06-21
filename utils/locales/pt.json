@@ -1,0 +1,171 @@
+{
+  "common": {
+    "error": "❌ Ocorreu um erro.",
+    "no_permission": "❌ Nao tens permissao para usar este comando.",
+    "not_found": "❌ Nao encontrado.",
+    "success": "✅ Sucesso!",
+    "loading": "⏳ A carregar...",
+    "cancelled": "❌ Cancelado.",
+    "yes": "Sim",
+    "no": "Nao",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Proximo",
+    "finish": "Terminar",
+    "skip": "Saltar",
+    "done": "Concluido!",
+    "bot_latency": "Latencia do Bot",
+    "api_latency": "Latencia da API",
+    "pong": "🏓 Pong!"
+  },
+  "configme": {
+    "step1": "🌍 **Passo 1/5**: Qual e a tua **lingua nativa**?",
+    "step2": "📚 **Passo 2/5**: Que lingua queres **aprender**?",
+    "step3": "🎂 **Passo 3/5**: Qual e a tua **faixa etaria**?",
+    "step4": "🌎 **Passo 4/5**: De que **regiao** es?",
+    "step5": "⚧ **Passo 5/5**: Qual e o teu **genero**?",
+    "completed": "🎉 **Perfil completo!** Bem-vindo a Orbital International!",
+    "already_setup": "⚠️ Ja tens um perfil configurado! Usa `/mystats` para ver.",
+    "native_placeholder": "Que linguas falas?",
+    "learning_placeholder": "Que lingua queres aprender?",
+    "age_placeholder": "Seleciona a tua faixa etaria",
+    "region_placeholder": "Seleciona a tua regiao",
+    "gender_placeholder": "Seleciona o teu genero",
+    "welcome_title": "🌍 Bem-vindo a Orbital International!",
+    "welcome_desc": "Foi-te atribuido cargos com base no teu perfil. Explora os canais de lingua e comeca a aprender!",
+    "rules_channel": "📜 Le as regras em <#{channel}>"
+  },
+  "findpartner": {
+    "no_profile": "❌ Precisas de configurar o teu perfil primeiro! Usa `/configme` para definires a tua lingua nativa e a que queres aprender.",
+    "no_partners": "🔍 Nao foram encontrados parceiros para aprendentes de **{learning}** de momento.\n\nO teu perfil: Nativo **{native}** → A aprender **{learning}**\nTenta mais tarde ou verifica os canais de lingua!",
+    "title": "🤝 Parceiros de Idioma para Ti",
+    "your_profile": "O teu perfil: Nativo **{native}** → A aprender **{learning}**",
+    "perfect_match": "✨ Match Perfeito!",
+    "same_learning": "📚 Mesmo Idioma",
+    "native": "Nativo: {lang}",
+    "learning": "A aprender: {lang}",
+    "level": "Nivel: {level}",
+    "xp": "XP: {xp}",
+    "coming_soon": "Clica num botao para enviar um pedido de DM (em breve!)"
+  },
+  "mystats": {
+    "no_stats": "❌ Estatisticas nao encontradas! Usa `/configme` para configurares o teu perfil primeiro.",
+    "title": "📊 As Tuas Estatisticas",
+    "level": "⭐ Nivel Atual",
+    "xp": "📈 XP Total",
+    "next_level": "🎯 Proximo Nivel",
+    "progress": "Progresso",
+    "messages": "💬 Mensagens Enviadas",
+    "voice": "🎤 Minutos em Voz",
+    "native": "🗣️ Lingua Nativa",
+    "learning": "📚 Lingua a Aprender",
+    "footer": "Continua a conversar para ganhar mais XP!"
+  },
+  "leaderboard": {
+    "no_stats": "🔍 Ainda nao ha estatisticas! Comeca a conversar para ganhar XP.",
+    "title": "🏆 Melhores Aprendentes",
+    "desc": "Classificacao anonima - sem dados pessoais expostos!",
+    "footer": "Atualizado em tempo real",
+    "level": "Nivel {level}",
+    "messages": "{count} mensagens"
+  },
+  "translate": {
+    "failed": "❌ A traducao falhou. Tenta novamente mais tarde.",
+    "title": "🌐 Traducao",
+    "original": "📤 Original ({lang})",
+    "translation": "📥 Traducao ({lang})",
+    "transliteration": "📝 Transliteracao (Latim)",
+    "footer": "Powered by Google Translate"
+  },
+  "help": {
+    "title": "🌍 Orbital International - Ajuda",
+    "desc": "Comunidade anonima de aprendizagem de linguas",
+    "language_title": "🎓 Aprendizagem de Linguas",
+    "language_desc": "`/configme` - Configura o teu perfil de lingua\n`/translate` - Traduz texto entre linguas\n`/findpartner` - Encontra um parceiro de intercambio",
+    "stats_title": "📊 Estatisticas",
+    "stats_desc": "`/mystats` - As tuas estatisticas anonimas\n`/leaderboard` - Classificacao dos melhores",
+    "general_title": "⚙️ Geral",
+    "general_desc": "`/help` - Este menu\n`/ping` - Latencia do bot",
+    "footer": "Usa /configme para definires a tua lingua! | Staff: usa /staffhelp"
+  },
+  "staffhelp": {
+    "title": "🛡️ Comandos de Staff - Orbital International",
+    "desc": "Comandos restritos para moderacao do servidor",
+    "mod_title": "📋 Moderacao",
+    "mod_desc": "`/limpar` - Limpar mensagens\n`/anuncio` - Enviar anuncio\n`/verificar` - Verificar quem aceitou as regras",
+    "setup_title": "🔧 Configuracao",
+    "setup_desc": "`/setupchannels` - Criar canais de lingua automaticamente\n`/regras` - Enviar painel de regras",
+    "user_title": "👤 Info de Utilizador",
+    "user_desc": "`/userinfo` - Mostrar info detalhada do utilizador\n`/canalinfo` - Info de canal de voz\n`/serverinfo` - Mostrar todos os IDs do servidor",
+    "bot_title": "⚙️ Bot",
+    "bot_desc": "`/ping` - Verificar latencia do bot",
+    "footer": "Painel de Staff Orbital International"
+  },
+  "ping": {
+    "calculating": "A calcular..."
+  },
+  "limpar": {
+    "cleared": "✅ {count} mensagens limpas.",
+    "failed": "❌ Nao foi possivel apagar as mensagens. Podem ter mais de 14 dias."
+  },
+  "verificar": {
+    "not_configured": "❌ Cargo de membro nao configurado.",
+    "title": "✅ Estado de Verificacao",
+    "verified": "✅ Verificado",
+    "unverified": "⏳ Nao Verificado",
+    "verified_count": "{count} membros",
+    "unverified_count": "{count} membros",
+    "all_verified": "Todos verificados!",
+    "unverified_users": "Utilizadores Nao Verificados"
+  },
+  "userinfo": {
+    "not_found": "❌ Utilizador nao encontrado neste servidor.",
+    "title": "👤 {tag}",
+    "user_id": "🆔 ID do Utilizador",
+    "joined": "📅 Entrou no Servidor",
+    "created": "🎂 Conta Criada",
+    "age_role": "🎭 Cargo de Idade",
+    "lang_roles": "🗣️ Cargos de Lingua",
+    "privacy": "🌍 Privacidade do Perfil",
+    "privacy_public": "🌐 Publico",
+    "privacy_private": "🔒 Privado",
+    "native": "📚 Lingua Nativa",
+    "learning": "🎯 Lingua a Aprender",
+    "xp_level": "⭐ Nivel de XP",
+    "no_data": "Sem dados",
+    "not_set": "Nao definido (usa /configme)",
+    "none": "Nenhum",
+    "footer": "Pedido por {tag}"
+  },
+  "anuncio": {
+    "sent": "✅ Anuncio enviado para {channel}!"
+  },
+  "canalinfo": {
+    "not_voice": "❌ Isto nao e um canal de voz!",
+    "title": "🔊 {name}",
+    "channel_id": "🆔 ID do Canal",
+    "user_limit": "👥 Limite de Utilizadores",
+    "members": "👤 Membros",
+    "empty": "Vazio"
+  },
+  "serverinfo": {
+    "title": "📊 {name} - Info do Servidor",
+    "server_id": "🏠 ID do Servidor",
+    "members": "👥 Membros",
+    "created": "📅 Criado",
+    "categories": "📁 Categorias",
+    "text_channels": "💬 Canais de Texto",
+    "voice_channels": "🔊 Canais de Voz",
+    "roles": "🎭 Cargos",
+    "none": "Nenhum",
+    "footer": "Pedido por {tag}"
+  },
+  "setupchannels": {
+    "success": "✅ Canais de lingua criados com sucesso!"
+  },
+  "serverroles": {
+    "no_roles": "Nenhum cargo encontrado!",
+    "title": "🎭 Cargos do Servidor",
+    "footer": "Total: {count} cargos | Servidor: {name}"
+  }
+}
