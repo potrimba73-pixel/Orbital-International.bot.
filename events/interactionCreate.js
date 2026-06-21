@@ -95,17 +95,48 @@ const TICKET_ABBREV = {
   other: 'oth'
 };
 
+// ─── LANGUAGE ROLE TO STAFF ACCESS MAP ───
+// Staff must have at least one of these roles to see tickets in that language
+const LANG_STAFF_ROLES = {
+  pt: ['1515151237740498996'], // native PT role OR staff can access PT tickets
+  en: ['1515151352966156449'],
+  es: ['1515151464367128586'],
+  ru: ['1515151422721622239'],
+  fr: ['1515151532704923739']
+};
+
 // ─── TICKET TRANSLATIONS ───
 const TICKET_LANG = {
   pt: {
     title: '🌌 ORBITAL HUB • TICKET ABERTO',
     userInfo: '👤 Informação do Utilizador',
-    accountAge: 'Idade da Conta',
+    accountAge: 'Conta criada há',
+    accountAgeFmt: (days) => {
+      const y = Math.floor(days / 365);
+      const m = Math.floor((days % 365) / 30);
+      const d = days % 30;
+      let s = [];
+      if (y > 0) s.push(`${y} ano${y > 1 ? 's' : ''}`);
+      if (m > 0) s.push(`${m} mês${m > 1 ? 'es' : ''}`);
+      if (d > 0 || s.length === 0) s.push(`${d} dia${d > 1 ? 's' : ''}`);
+      return `${s.join(', ')} (${days} dias)`;
+    },
+    joinedAgo: 'Na comunidade há',
+    joinedAgoFmt: (days) => {
+      const y = Math.floor(days / 365);
+      const m = Math.floor((days % 365) / 30);
+      const d = days % 30;
+      let s = [];
+      if (y > 0) s.push(`${y}a`);
+      if (m > 0) s.push(`${m}m`);
+      if (d > 0 || s.length === 0) s.push(`${d}d`);
+      return s.join(' ');
+    },
     age: 'Idade',
     gender: 'Género',
     notSet: 'Não definido',
     warning: '⚠️ Aviso Importante',
-    warningText: 'Abrir tickets de brincadeira ou fazer denúncias falsas para incomodar a Staff resultará num Mute ou Kick imediato.',
+    warningText: 'Abrir tickets de brincadeira ou fazer denúncias falsas para incomodar a Staff resultará num **Mute ou Kick imediato**.',
     desc: (member, reason, langName) => `Olá ${member}, o teu ticket foi criado.\n\n**Motivo:** ${TICKET_LABELS[reason]}\n**Idioma:** ${langName}\n**Utilizador:** ${member.user.tag}\n**ID:** ${member.id}\n\nPor favor descreve o teu problema em detalhe. Um membro da Staff irá ajudar-te brevemente.`,
     closeBtn: '🔒 Fechar Ticket',
     claimBtn: '✋ Assumir Ticket',
@@ -127,17 +158,39 @@ const TICKET_LANG = {
     htmlTitle: 'Ticket Transcript',
     closeReasonModal: 'Razão de Fecho',
     closeReasonPlaceholder: 'Descreve brevemente o que foi resolvido...',
-    closeReasonLabel: 'Razão do fecho'
+    closeReasonLabel: 'Razão do fecho',
+    claimMsg: (staff, opener) => `🟡 **Ticket assumido por ${staff}** — a ajudar ${opener} agora.`
   },
   en: {
     title: '🌌 ORBITAL HUB • TICKET OPENED',
     userInfo: '👤 User Information',
-    accountAge: 'Account Age',
+    accountAge: 'Account created',
+    accountAgeFmt: (days) => {
+      const y = Math.floor(days / 365);
+      const m = Math.floor((days % 365) / 30);
+      const d = days % 30;
+      let s = [];
+      if (y > 0) s.push(`${y} year${y > 1 ? 's' : ''}`);
+      if (m > 0) s.push(`${m} month${m > 1 ? 's' : ''}`);
+      if (d > 0 || s.length === 0) s.push(`${d} day${d > 1 ? 's' : ''}`);
+      return `${s.join(', ')} (${days} days)`;
+    },
+    joinedAgo: 'In community for',
+    joinedAgoFmt: (days) => {
+      const y = Math.floor(days / 365);
+      const m = Math.floor((days % 365) / 30);
+      const d = days % 30;
+      let s = [];
+      if (y > 0) s.push(`${y}y`);
+      if (m > 0) s.push(`${m}m`);
+      if (d > 0 || s.length === 0) s.push(`${d}d`);
+      return s.join(' ');
+    },
     age: 'Age',
     gender: 'Gender',
     notSet: 'Not set',
     warning: '⚠️ Important Notice',
-    warningText: 'Opening troll tickets or making fake reports to disturb the Staff will lead to an immediate Mute or Kick.',
+    warningText: 'Opening troll tickets or making fake reports to disturb the Staff will lead to an **immediate Mute or Kick**.',
     desc: (member, reason, langName) => `Hello ${member}, your ticket has been created.\n\n**Reason:** ${TICKET_LABELS[reason]}\n**Language:** ${langName}\n**User:** ${member.user.tag}\n**ID:** ${member.id}\n\nPlease describe your issue in detail. A Staff member will assist you shortly.`,
     closeBtn: '🔒 Close Ticket',
     claimBtn: '✋ Claim Ticket',
@@ -159,17 +212,21 @@ const TICKET_LANG = {
     htmlTitle: 'Ticket Transcript',
     closeReasonModal: 'Close Reason',
     closeReasonPlaceholder: 'Briefly describe what was resolved...',
-    closeReasonLabel: 'Reason for closing'
+    closeReasonLabel: 'Reason for closing',
+    claimMsg: (staff, opener) => `🟡 **Ticket claimed by ${staff}** — assisting ${opener} now.`
   },
   ru: {
     title: '🌌 ORBITAL HUB • ТИКЕТ ОТКРЫТ',
     userInfo: '👤 Информация о пользователе',
-    accountAge: 'Возраст аккаунта',
+    accountAge: 'Аккаунт создан',
+    accountAgeFmt: (days) => `${Math.floor(days / 365)} лет, ${Math.floor((days % 365) / 30)} мес (${days} дн)`,
+    joinedAgo: 'В сообществе',
+    joinedAgoFmt: (days) => `${Math.floor(days / 365)}г ${Math.floor((days % 365) / 30)}м ${days % 30}д`,
     age: 'Возраст',
     gender: 'Пол',
     notSet: 'Не указано',
     warning: '⚠️ Важное предупреждение',
-    warningText: 'Открытие тролль-тикетов или ложные жалобы для беспокойства Staff приведут к немедленному Mute или Kick.',
+    warningText: 'Открытие тролль-тикетов или ложные жалобы приведут к немедленному **Mute или Kick**.',
     desc: (member, reason, langName) => `Привет ${member}, твой тикет создан.\n\n**Причина:** ${TICKET_LABELS[reason]}\n**Язык:** ${langName}\n**Пользователь:** ${member.user.tag}\n**ID:** ${member.id}\n\nПожалуйста, опиши свою проблему подробно. Сотрудник скоро тебе поможет.`,
     closeBtn: '🔒 Закрыть тикет',
     claimBtn: '✋ Взять тикет',
@@ -191,17 +248,21 @@ const TICKET_LANG = {
     htmlTitle: 'Ticket Transcript',
     closeReasonModal: 'Причина закрытия',
     closeReasonPlaceholder: 'Кратко опиши, что было решено...',
-    closeReasonLabel: 'Причина закрытия'
+    closeReasonLabel: 'Причина закрытия',
+    claimMsg: (staff, opener) => `🟡 **Тикет взят ${staff}** — помогает ${opener}.`
   },
   es: {
     title: '🌌 ORBITAL HUB • TICKET ABIERTO',
     userInfo: '👤 Información del Usuario',
-    accountAge: 'Edad de la Cuenta',
+    accountAge: 'Cuenta creada hace',
+    accountAgeFmt: (days) => `${Math.floor(days / 365)}a, ${Math.floor((days % 365) / 30)}m (${days}d)`,
+    joinedAgo: 'En la comunidad hace',
+    joinedAgoFmt: (days) => `${Math.floor(days / 365)}a ${Math.floor((days % 365) / 30)}m ${days % 30}d`,
     age: 'Edad',
     gender: 'Género',
     notSet: 'No definido',
     warning: '⚠️ Aviso Importante',
-    warningText: 'Abrir tickets de broma o hacer denuncias falsas para molestar al Staff resultará en un Mute o Kick inmediato.',
+    warningText: 'Abrir tickets de broma o hacer denuncias falsas resultará en un **Mute o Kick inmediato**.',
     desc: (member, reason, langName) => `Hola ${member}, tu ticket ha sido creado.\n\n**Motivo:** ${TICKET_LABELS[reason]}\n**Idioma:** ${langName}\n**Usuario:** ${member.user.tag}\n**ID:** ${member.id}\n\nPor favor describe tu problema en detalle. Un miembro del Staff te ayudará pronto.`,
     closeBtn: '🔒 Cerrar Ticket',
     claimBtn: '✋ Asumir Ticket',
@@ -223,17 +284,21 @@ const TICKET_LANG = {
     htmlTitle: 'Ticket Transcript',
     closeReasonModal: 'Razón de Cierre',
     closeReasonPlaceholder: 'Describe brevemente qué se resolvió...',
-    closeReasonLabel: 'Razón del cierre'
+    closeReasonLabel: 'Razón del cierre',
+    claimMsg: (staff, opener) => `🟡 **Ticket asumido por ${staff}** — ayudando a ${opener} ahora.`
   },
   fr: {
     title: '🌌 ORBITAL HUB • TICKET OUVERT',
     userInfo: '👤 Informations Utilisateur',
-    accountAge: 'Âge du Compte',
+    accountAge: 'Compte créé il y a',
+    accountAgeFmt: (days) => `${Math.floor(days / 365)}a, ${Math.floor((days % 365) / 30)}m (${days}j)`,
+    joinedAgo: 'Dans la communauté depuis',
+    joinedAgoFmt: (days) => `${Math.floor(days / 365)}a ${Math.floor((days % 365) / 30)}m ${days % 30}j`,
     age: 'Âge',
     gender: 'Genre',
     notSet: 'Non défini',
     warning: '⚠️ Avis Important',
-    warningText: 'Ouvrir des tickets pour troller ou faire de fausses plaintes pour déranger le Staff entraînera un Mute ou Kick immédiat.',
+    warningText: 'Ouvrir des tickets pour troller ou faire de fausses plaintes entraînera un **Mute ou Kick immédiat**.',
     desc: (member, reason, langName) => `Bonjour ${member}, ton ticket a été créé.\n\n**Raison:** ${TICKET_LABELS[reason]}\n**Langue:** ${langName}\n**Utilisateur:** ${member.user.tag}\n**ID:** ${member.id}\n\nMerci de décrire ton problème en détail. Un membre du Staff t'assistera sous peu.`,
     closeBtn: '🔒 Fermer le Ticket',
     claimBtn: '✋ Prendre le Ticket',
@@ -255,7 +320,8 @@ const TICKET_LANG = {
     htmlTitle: 'Ticket Transcript',
     closeReasonModal: 'Raison de Fermeture',
     closeReasonPlaceholder: 'Décris brièvement ce qui a été résolu...',
-    closeReasonLabel: 'Raison de la fermeture'
+    closeReasonLabel: 'Raison de la fermeture',
+    claimMsg: (staff, opener) => `🟡 **Ticket pris par ${staff}** — assiste ${opener} maintenant.`
   }
 };
 
@@ -281,9 +347,16 @@ function getUserInfo(member) {
   const accountCreated = member.user.createdAt;
   const now = new Date();
   const diffTime = Math.abs(now - accountCreated);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const accountDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  return { age, gender, accountDays: diffDays };
+  const joinedAt = member.joinedAt;
+  let joinedDays = null;
+  if (joinedAt) {
+    const joinedDiff = Math.abs(now - joinedAt);
+    joinedDays = Math.ceil(joinedDiff / (1000 * 60 * 60 * 24));
+  }
+
+  return { age, gender, accountDays, joinedDays };
 }
 
 module.exports = {
@@ -329,7 +402,6 @@ module.exports = {
         if (interaction.customId === 'verify_member') {
           await handleVerification(interaction);
         } else if (interaction.customId === 'ticket_close') {
-          // Open modal to ask for close reason
           const modal = new ModalBuilder()
             .setCustomId('ticket_close_modal')
             .setTitle('Close Ticket');
@@ -449,10 +521,17 @@ async function handleTicketLanguageSelect(interaction, client) {
     );
   }
 
+  const t = TICKET_LANG.en; // Warning always in English for consistency, or pick based on user's native role
+
   const languageEmbed = new EmbedBuilder()
     .setTitle('🌌 ORBITAL HUB • SELECT TICKET LANGUAGE')
     .setDescription(`You selected: **${TICKET_LABELS[reason]}**\n\nPlease select the language you want to use for this ticket. Choose a language you are comfortable with:`)
     .setColor(0x2E0854)
+    .addFields({
+      name: t.warning,
+      value: t.warningText,
+      inline: false
+    })
     .setFooter({ text: 'Orbital International • Support', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
 
   const languageMenu = new ActionRowBuilder().addComponents(
@@ -507,24 +586,40 @@ async function handleTicketCreate(interaction, client) {
     const reasonAbbr = TICKET_ABBREV[reason] || reason;
     const channelName = `t-${usernameClean}-${reasonAbbr}-${language}`;
 
+    // Build permission overwrites with language-based staff access
+    const permissionOverwrites = [
+      {
+        id: guild.id,
+        deny: [PermissionFlagsBits.ViewChannel]
+      },
+      {
+        id: member.id,
+        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+      }
+    ];
+
+    // Staff role always sees everything (head staff)
+    permissionOverwrites.push({
+      id: STAFF_ROLE_ID,
+      allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+    });
+
+    // Add language-specific staff roles
+    const langStaffRoles = LANG_STAFF_ROLES[language] || [];
+    for (const roleId of langStaffRoles) {
+      if (roleId !== STAFF_ROLE_ID) {
+        permissionOverwrites.push({
+          id: roleId,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+        });
+      }
+    }
+
     const ticketChannel = await guild.channels.create({
       name: channelName,
       type: ChannelType.GuildText,
       parent: TICKET_CATEGORY_ID,
-      permissionOverwrites: [
-        {
-          id: guild.id,
-          deny: [PermissionFlagsBits.ViewChannel]
-        },
-        {
-          id: member.id,
-          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
-        },
-        {
-          id: STAFF_ROLE_ID,
-          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
-        }
-      ]
+      permissionOverwrites
     });
 
     const userInfo = getUserInfo(member);
@@ -536,7 +631,7 @@ async function handleTicketCreate(interaction, client) {
       .addFields(
         {
           name: t.userInfo,
-          value: `**Member:** ${member}\n**${t.accountAge}:** ${userInfo.accountDays} days\n**${t.age}:** ${userInfo.age || t.notSet}\n**${t.gender}:** ${userInfo.gender || t.notSet}`,
+          value: `**Member:** ${member}\n**${t.accountAge}:** ${t.accountAgeFmt(userInfo.accountDays)}\n**${t.joinedAgo}:** ${userInfo.joinedDays ? t.joinedAgoFmt(userInfo.joinedDays) : t.notSet}\n**${t.age}:** ${userInfo.age || t.notSet}\n**${t.gender}:** ${userInfo.gender || t.notSet}`,
           inline: false
         },
         {
@@ -565,8 +660,18 @@ async function handleTicketCreate(interaction, client) {
       components: [closeRow]
     });
 
+    // Reply with redirect button to ticket
+    const redirectRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel(`🔗 ${language.toUpperCase()} Ticket`)
+        .setStyle(ButtonStyle.Link)
+        .setURL(`https://discord.com/channels/${guild.id}/${ticketChannel.id}`)
+        .setEmoji('🎟️')
+    );
+
     await interaction.editReply({
-      content: t.created(ticketChannel, langName)
+      content: t.created(ticketChannel, langName),
+      components: [redirectRow]
     });
 
     // Log: Ticket Created
@@ -577,7 +682,16 @@ async function handleTicketCreate(interaction, client) {
         .setDescription(t.logCreated(member, reason, langName, ticketChannel))
         .setColor(0x57F287)
         .setTimestamp();
-      await logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
+
+      const logRedirectRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('🔗 Go to Ticket')
+          .setStyle(ButtonStyle.Link)
+          .setURL(`https://discord.com/channels/${guild.id}/${ticketChannel.id}`)
+          .setEmoji('🎟️')
+      );
+
+      await logsChannel.send({ embeds: [logEmbed], components: [logRedirectRow] }).catch(() => {});
     }
 
   } catch (err) {
@@ -613,6 +727,8 @@ async function handleTicketClaim(interaction, client) {
     }
   }
 
+  const openerMention = opener ? `<@${opener.id}>` : 'user';
+
   // Disable claim button
   const disabledRow = new ActionRowBuilder()
     .addComponents(
@@ -622,7 +738,7 @@ async function handleTicketClaim(interaction, client) {
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId('ticket_claim')
-        .setLabel(`✋ Claimed by ${staff.user.username}`)
+        .setLabel(`✋ ${t.claimBtn.split(' ').pop()} ${staff.user.username}`)
         .setStyle(ButtonStyle.Primary)
         .setDisabled(true)
     );
@@ -630,7 +746,7 @@ async function handleTicketClaim(interaction, client) {
   await interaction.update({ components: [disabledRow] });
 
   await channel.send({
-    content: `🟡 **Ticket claimed by ${staff}** — assisting ${opener ? `<@${opener.id}>` : 'user'} now.`
+    content: t.claimMsg(staff, openerMention)
   });
 
   // Log: Ticket Claimed
@@ -643,7 +759,16 @@ async function handleTicketClaim(interaction, client) {
         .setDescription(t.logClaimed(member, staff, channel))
         .setColor(0xFEE75C)
         .setTimestamp();
-      await logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
+
+      const logRedirectRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('🔗 Go to Ticket')
+          .setStyle(ButtonStyle.Link)
+          .setURL(`https://discord.com/channels/${channel.guild.id}/${channel.id}`)
+          .setEmoji('🎟️')
+      );
+
+      await logsChannel.send({ embeds: [logEmbed], components: [logRedirectRow] }).catch(() => {});
     }
   }
 }
