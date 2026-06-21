@@ -8,7 +8,7 @@ const LOGS_CHANNEL_ID = '1515419876859314306';
 
 // ─── GIF URLs ───
 const GIF_RULES = 'https://media.discordapp.net/attachments/1518300030786867391/1518300469137637486/9bn9qn1.gif?ex=6a396b00&is=6a381980&hm=bb5e8c7d843c2ca4bd88c148feda0c66091c9ca5a5b06fb2842ffa0ab214b20a&animated=true';
-const GIF_ROLES = 'https://cdn.discordapp.com/attachments/1518300030786867391/1518300068996972685/4xhdt3f.gif?ex=6a396aa1&is=6a381921&hm=2b11566d298630ddcbc00f8813196b8995be584aa1320c64175397984eb4c499&animated=true';
+const GIF_ROLES = 'https://cdn.discordapp.com/attachments/1518300030786867391/1518334148702507189/r32w28b.gif?ex=6a398a5e&is=6a3838de&hm=8d2a548f19f9c2863a4dce04676a323eb9615fcfedd12bed8b5d5125694e6f82&animated=true';
 const GIF_TICKET = 'https://media.discordapp.net/attachments/1518300030786867391/1518300468705628270/j88pr2h.gif?ex=6a396b00&is=6a381980&hm=23b27dfe6946c7e2c8f176c5f4a0d895c0c08124db3c36e8526251d0be7ba720&animated=true';
 
 module.exports = {
@@ -192,9 +192,9 @@ module.exports = {
           .setMinValues(1)
           .setMaxValues(1)
           .addOptions(
-            new StringSelectMenuOptionBuilder().setLabel('🟦 Male / Masculino').setValue('male').setEmoji('🟦'),
-            new StringSelectMenuOptionBuilder().setLabel('🟥 Female / Feminino').setValue('female').setEmoji('🟥'),
-            new StringSelectMenuOptionBuilder().setLabel('🟪 Other / Outro').setValue('other').setEmoji('🟪')
+            new StringSelectMenuOptionBuilder().setLabel('🟦 Male').setValue('male').setEmoji('🟦'),
+            new StringSelectMenuOptionBuilder().setLabel('🟥 Female').setValue('female').setEmoji('🟥'),
+            new StringSelectMenuOptionBuilder().setLabel('🟪 Other').setValue('other').setEmoji('🟪')
           )
       );
 
