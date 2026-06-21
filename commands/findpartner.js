@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 const UserProfile = require('../utils/models/UserProfile');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,13 +9,14 @@ module.exports = {
 
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const lang = await i18n.getUserLang(interaction.user.id);
 
     try {
       const myProfile = await UserProfile.findOne({ userId: interaction.user.id });
 
       if (!myProfile || !myProfile.learningLanguage) {
         return await interaction.editReply({
-          content: '❌ You need to set up your profile first! Use `/configme` to set your native and learning languages.',
+          content: '❌ ' + i18n.get(lang, 'findpartner.no_profile'),
         });
       }
 
@@ -29,28 +31,17 @@ module.exports = {
         ]
       }).limit(10);
 
-      partners = partners.filter(p => {
-        if (p.privacy === 'private') {
-          return p.nativeLanguage?.toUpperCase() === myLearning && 
-                 p.learningLanguage?.toUpperCase() === myNative;
-        }
-        return true;
-      });
-
       if (partners.length === 0) {
         return await interaction.editReply({
-          content: `🔍 No partners found for **${myLearning}** learners right now.
-
-Your profile: Native **${myNative}** → Learning **${myLearning}**
-Try again later or check the language channels!`,
+          content: '🔍 ' + i18n.get(lang, 'findpartner.no_partners', { native: myNative, learning: myLearning }),
         });
       }
 
       const embed = new EmbedBuilder()
-        .setTitle(`🤝 Language Partners for You`)
-        .setDescription(`Your profile: Native **${myNative}** → Learning **${myLearning}**`)
+        .setTitle('🤝 ' + i18n.get(lang, 'findpartner.title'))
+        .setDescription(i18n.get(lang, 'findpartner.your_profile', { native: myNative, learning: myLearning }))
         .setColor(0x57F287)
-        .setFooter({ text: 'Click a button to send a DM request (coming soon!)' });
+        .setFooter({ text: i18n.get(lang, 'findpartner.coming_soon') });
 
       const rows = [];
       let currentRow = new ActionRowBuilder();
@@ -60,17 +51,20 @@ Try again later or check the language channels!`,
         const partnerNative = partner.nativeLanguage?.toUpperCase() || '?';
         const partnerLearning = partner.learningLanguage?.toUpperCase() || '?';
         const matchType = (partnerNative === myLearning && partnerLearning === myNative) 
-          ? '✨ Perfect Match!' 
-          : '📚 Same Learning';
+          ? '✨ ' + i18n.get(lang, 'findpartner.perfect_match') 
+          : '📚 ' + i18n.get(lang, 'findpartner.same_learning');
 
-        const member = await interaction.guild.members.fetch(partner.userId).catch(() => null);
+        let member = interaction.guild.members.cache.get(partner.userId);
+        if (!member) {
+          member = await interaction.guild.members.fetch(partner.userId).catch(() => null);
+        }
         const displayName = member ? member.displayName : `User ${partner.userId.slice(-4)}`;
 
         embed.addFields({
           name: `${matchType}`,
           value: `**${displayName}**
-Native: ${partnerNative} | Learning: ${partnerLearning}
-Level: ${partner.level || 1} | XP: ${partner.xp || 0}`,
+${i18n.get(lang, 'findpartner.native', { lang: partnerNative })} | ${i18n.get(lang, 'findpartner.learning', { lang: partnerLearning })}
+${i18n.get(lang, 'findpartner.level', { level: partner.level || 1 })} | ${i18n.get(lang, 'findpartner.xp', { xp: partner.xp || 0 })}`,
           inline: true
         });
 
@@ -103,7 +97,7 @@ Level: ${partner.level || 1} | XP: ${partner.xp || 0}`,
     } catch (error) {
       console.error('Find partner error:', error);
       await interaction.editReply({
-        content: '❌ An error occurred while searching for partners.',
+        content: '❌ ' + i18n.get(lang, 'common.error'),
       });
     }
   }
