@@ -520,6 +520,7 @@ async function handleTicketLanguageSelect(interaction, client) {
     }
   }
 
+  // Se o utilizador nao tem nenhum role de lingua, mostra TODAS as 5 linguas
   if (userLanguages.length === 0) {
     userLanguages.push(
       { value: 'pt', label: '🇵🇹 Português (Portuguese)', emoji: '🇵🇹' },
@@ -539,7 +540,7 @@ async function handleTicketLanguageSelect(interaction, client) {
       value: 'Opening troll tickets or making fake reports to disturb the Staff will lead to an **immediate Mute or Kick**.',
       inline: false
     })
-    .setFooter({ text: 'Orbital International • Support', iconURL: 'https://cdn.discordapp.com/emojis/1517297885283094711.webp' });
+    .setFooter({ text: 'Orbital International • Support' });
 
   const languageMenu = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
