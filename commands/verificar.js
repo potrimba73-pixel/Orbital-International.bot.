@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,12 +8,13 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   async execute(interaction) {
+    const lang = await i18n.getUserLang(interaction.user.id);
     const memberRoleId = process.env.MEMBER_ROLE_ID;
-    
+
     if (!memberRoleId || memberRoleId === 'your_member_role_id_here') {
       return await interaction.reply({
-        content: '❌ Member role not configured.',
-        flags: 64
+        content: '❌ ' + i18n.get(lang, 'verificar.not_configured'),
+        flags: MessageFlags.Ephemeral
       });
     }
 
@@ -21,15 +23,15 @@ module.exports = {
     const unverifiedMembers = members.filter(m => !m.roles.cache.has(memberRoleId) && !m.user.bot);
 
     const embed = new EmbedBuilder()
-      .setTitle('✅ Verification Status')
+      .setTitle('✅ ' + i18n.get(lang, 'verificar.title'))
       .setColor(0x57F287)
       .addFields(
-        { name: '✅ Verified', value: verifiedMembers.size + ' members', inline: true },
-        { name: '⏳ Unverified', value: unverifiedMembers.size + ' members', inline: true },
-        { name: 'Unverified Users', value: unverifiedMembers.size > 0 ? unverifiedMembers.map(m => m.user.tag).join('\n').substring(0, 1024) : 'All verified!' }
+        { name: '✅ ' + i18n.get(lang, 'verificar.verified'), value: i18n.get(lang, 'verificar.verified_count', { count: verifiedMembers.size }), inline: true },
+        { name: '⏳ ' + i18n.get(lang, 'verificar.unverified'), value: i18n.get(lang, 'verificar.unverified_count', { count: unverifiedMembers.size }), inline: true },
+        { name: i18n.get(lang, 'verificar.unverified_users'), value: unverifiedMembers.size > 0 ? unverifiedMembers.map(m => m.user.tag).join('\n').substring(0, 1024) : i18n.get(lang, 'verificar.all_verified') }
       )
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed], flags: 64 });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
