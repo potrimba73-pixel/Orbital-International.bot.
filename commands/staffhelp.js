@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,35 +8,21 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   async execute(interaction) {
+    const lang = await i18n.getUserLang(interaction.user.id);
+
     const embed = new EmbedBuilder()
-      .setTitle('🛡️ Staff Commands - Orbital International')
-      .setDescription('Restricted commands for server moderation')
+      .setTitle('🛡️ ' + i18n.get(lang, 'staffhelp.title'))
+      .setDescription(i18n.get(lang, 'staffhelp.desc'))
       .setColor(0xED4245)
       .addFields(
-        { 
-          name: '📋 Moderation',
-          value: '`/limpar` - Clear messages\n`/anuncio` - Send announcement\n`/verificar` - Check who accepted rules',
-          inline: false 
-        },
-        { 
-          name: '🔧 Setup',
-          value: '`/setupchannels` - Auto-create language channels\n`/regras` - Send rules panel',
-          inline: false 
-        },
-        { 
-          name: '👤 User Info',
-          value: '`/userinfo` - Show detailed user info (age role, language, privacy)\n`/canalinfo` - Voice channel info\n`/serverinfo` - Show all server IDs',
-          inline: false 
-        },
-        { 
-          name: '⚙️ Bot',
-          value: '`/ping` - Check bot latency',
-          inline: false 
-        }
+        { name: '📋 ' + i18n.get(lang, 'staffhelp.mod_title'), value: i18n.get(lang, 'staffhelp.mod_desc'), inline: false },
+        { name: '🔧 ' + i18n.get(lang, 'staffhelp.setup_title'), value: i18n.get(lang, 'staffhelp.setup_desc'), inline: false },
+        { name: '👤 ' + i18n.get(lang, 'staffhelp.user_title'), value: i18n.get(lang, 'staffhelp.user_desc'), inline: false },
+        { name: '⚙️ ' + i18n.get(lang, 'staffhelp.bot_title'), value: i18n.get(lang, 'staffhelp.bot_desc'), inline: false }
       )
-      .setFooter({ text: 'Orbital International Staff Panel' })
+      .setFooter({ text: i18n.get(lang, 'staffhelp.footer') })
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed], flags: 64 });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
