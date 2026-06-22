@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,6 +8,7 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
   async execute(interaction) {
+    const lang = await i18n.getUserLang(interaction.user.id);
     const guild = interaction.guild;
     await guild.fetch();
 
@@ -37,21 +39,21 @@ ID: ${c.id}
       .join('\n');
 
     const embed = new EmbedBuilder()
-      .setTitle(`📊 ${guild.name} - Server Info`)
+      .setTitle('📊 ' + i18n.get(lang, 'serverinfo.title', { name: guild.name }))
       .setThumbnail(guild.iconURL({ dynamic: true }))
       .setColor(0x5865F2)
       .addFields(
-        { name: '🏠 Server ID', value: `\`\`\`${guild.id}\`\`\``, inline: true },
-        { name: '👥 Members', value: `\`\`\`${guild.memberCount}\`\`\``, inline: true },
-        { name: '📅 Created', value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:R>`, inline: true },
-        { name: '📁 Categories', value: categories || 'None', inline: false },
-        { name: '💬 Text Channels', value: textChannels.substring(0, 1024) || 'None', inline: false },
-        { name: '🔊 Voice Channels', value: voiceChannels.substring(0, 1024) || 'None', inline: false },
-        { name: '🎭 Roles', value: roles.substring(0, 1024) || 'None', inline: false }
+        { name: '🏠 ' + i18n.get(lang, 'serverinfo.server_id'), value: `\`\`\`${guild.id}\`\`\``, inline: true },
+        { name: '👥 ' + i18n.get(lang, 'serverinfo.members'), value: `\`\`\`${guild.memberCount}\`\`\``, inline: true },
+        { name: '📅 ' + i18n.get(lang, 'serverinfo.created'), value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:R>`, inline: true },
+        { name: '📁 ' + i18n.get(lang, 'serverinfo.categories'), value: categories || i18n.get(lang, 'serverinfo.none'), inline: false },
+        { name: '💬 ' + i18n.get(lang, 'serverinfo.text_channels'), value: textChannels.substring(0, 1024) || i18n.get(lang, 'serverinfo.none'), inline: false },
+        { name: '🔊 ' + i18n.get(lang, 'serverinfo.voice_channels'), value: voiceChannels.substring(0, 1024) || i18n.get(lang, 'serverinfo.none'), inline: false },
+        { name: '🎭 ' + i18n.get(lang, 'serverinfo.roles'), value: roles.substring(0, 1024) || i18n.get(lang, 'serverinfo.none'), inline: false }
       )
-      .setFooter({ text: `Requested by ${interaction.user.tag}` })
+      .setFooter({ text: i18n.get(lang, 'serverinfo.footer', { tag: interaction.user.tag }) })
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed], flags: 64 });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
