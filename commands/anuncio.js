@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -19,6 +20,7 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   async execute(interaction) {
+    const lang = await i18n.getUserLang(interaction.user.id);
     const title = interaction.options.getString('title');
     const message = interaction.options.getString('message');
     const channel = interaction.options.getChannel('channel') || interaction.channel;
@@ -32,8 +34,8 @@ module.exports = {
 
     await channel.send({ embeds: [embed] });
     await interaction.reply({
-      content: `✅ Announcement sent to ${channel}!`,
-      flags: 64
+      content: '✅ ' + i18n.get(lang, 'anuncio.sent', { channel: channel.toString() }),
+      flags: MessageFlags.Ephemeral
     });
   }
 };
