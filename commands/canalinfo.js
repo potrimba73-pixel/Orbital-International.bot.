@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } = require('discord.js');
+const i18n = require('../utils/i18n');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -11,27 +12,28 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   async execute(interaction) {
+    const lang = await i18n.getUserLang(interaction.user.id);
     const channel = interaction.options.getChannel('channel');
 
     if (channel.type !== 2) {
       return await interaction.reply({
-        content: '❌ This is not a voice channel!',
-        flags: 64
+        content: '❌ ' + i18n.get(lang, 'canalinfo.not_voice'),
+        flags: MessageFlags.Ephemeral
       });
     }
 
-    const members = channel.members.map(m => m.user.tag).join('\n') || 'Empty';
+    const members = channel.members.map(m => m.user.tag).join('\n') || i18n.get(lang, 'canalinfo.empty');
 
     const embed = new EmbedBuilder()
-      .setTitle('🔊 ' + channel.name)
+      .setTitle('🔊 ' + i18n.get(lang, 'canalinfo.title', { name: channel.name }))
       .setColor(0x5865F2)
       .addFields(
-        { name: '🆔 Channel ID', value: '`' + channel.id + '`', inline: true },
-        { name: '👥 User Limit', value: String(channel.userLimit || '∞'), inline: true },
-        { name: '👤 Members', value: members.substring(0, 1024) }
+        { name: '🆔 ' + i18n.get(lang, 'canalinfo.channel_id'), value: '`' + channel.id + '`', inline: true },
+        { name: '👥 ' + i18n.get(lang, 'canalinfo.user_limit'), value: String(channel.userLimit || '∞'), inline: true },
+        { name: '👤 ' + i18n.get(lang, 'canalinfo.members'), value: members.substring(0, 1024) }
       )
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed], flags: 64 });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
