@@ -3,19 +3,19 @@ const GuildConfig = require('../utils/models/GuildConfig');
 const i18n = require('../utils/i18n');
 
 const nativeOptions = [
-  { label: 'Português (Portuguese)', value: 'pt', description: 'Português', emoji: { name: '🇵🇹' } },
+  { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: '🇵🇹' } },
   { label: 'English', value: 'en', description: 'English', emoji: { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' } },
-  { label: 'Русский (Russian)', value: 'ru', description: 'Русский', emoji: { name: '🇷🇺' } },
-  { label: 'Español (Spanish)', value: 'es', description: 'Español', emoji: { name: '🇪🇸' } },
-  { label: 'Français (French)', value: 'fr', description: 'Français', emoji: { name: '🇫🇷' } }
+  { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: '🇷🇺' } },
+  { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: '🇪🇸' } },
+  { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: '🇫🇷' } }
 ];
 
 const learningOptions = [
-  { label: 'Português (Portuguese)', value: 'pt', description: 'Português', emoji: { name: '🇵🇹' } },
+  { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: '🇵🇹' } },
   { label: 'English', value: 'en', description: 'English', emoji: { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' } },
-  { label: 'Русский (Russian)', value: 'ru', description: 'Русский', emoji: { name: '🇷🇺' } },
-  { label: 'Español (Spanish)', value: 'es', description: 'Español', emoji: { name: '🇪🇸' } },
-  { label: 'Français (French)', value: 'fr', description: 'Français', emoji: { name: '🇫🇷' } }
+  { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: '🇷🇺' } },
+  { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: '🇪🇸' } },
+  { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: '🇫🇷' } }
 ];
 
 const ageOptions = [
