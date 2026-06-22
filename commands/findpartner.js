@@ -16,7 +16,7 @@ module.exports = {
 
       if (!myProfile || !myProfile.learningLanguage) {
         return await interaction.editReply({
-          content: '❌ ' + i18n.get(lang, 'findpartner.no_profile'),
+          content: 'No profile found. Please run /configme first.',
         });
       }
 
@@ -43,15 +43,14 @@ module.exports = {
 
       if (partners.length === 0) {
         return await interaction.editReply({
-          content: '🔍 ' + i18n.get(lang, 'findpartner.no_partners', { native: myNative.toUpperCase(), learning: myLearning.toUpperCase() }),
+          content: 'No partners found matching your profile.',
         });
       }
 
       const embed = new EmbedBuilder()
-        .setTitle('🤝 ' + i18n.get(lang, 'findpartner.title'))
-        .setDescription(i18n.get(lang, 'findpartner.your_profile', { native: myNative.toUpperCase(), learning: myLearning.toUpperCase() }))
-        .setColor(0x57F287)
-        .setFooter({ text: i18n.get(lang, 'findpartner.coming_soon') });
+        .setTitle('Language Partners Found')
+        .setDescription('Your profile: Native ' + myNative.toUpperCase() + ', Learning ' + myLearning.toUpperCase())
+        .setColor(0x57F287);
 
       const rows = [];
       let currentRow = new ActionRowBuilder();
@@ -61,8 +60,8 @@ module.exports = {
         const partnerNative = (partner.nativeLanguage || '?').toUpperCase();
         const partnerLearning = (partner.learningLanguage || '?').toUpperCase();
         const matchType = (partnerNative === myLearning.toUpperCase() && partnerLearning === myNative.toUpperCase())
-          ? '✨ ' + i18n.get(lang, 'findpartner.perfect_match')
-          : '📚 ' + i18n.get(lang, 'findpartner.same_learning');
+          ? 'Perfect Match'
+          : 'Same Learning';
 
         const member = guildMembers.get(partner.userId);
         const displayName = member ? member.displayName : 'User ' + partner.userId.slice(-4);
@@ -71,11 +70,9 @@ module.exports = {
           name: matchType,
           value: '**' + displayName + '**
 ' +
-            i18n.get(lang, 'findpartner.native', { lang: partnerNative }) + ' | ' +
-            i18n.get(lang, 'findpartner.learning', { lang: partnerLearning }) + '
+            'Native: ' + partnerNative + ' | Learning: ' + partnerLearning + '
 ' +
-            i18n.get(lang, 'findpartner.level', { level: partner.level || 1 }) + ' | ' +
-            i18n.get(lang, 'findpartner.xp', { xp: partner.xp || 0 }),
+            'Level: ' + (partner.level || 1) + ' | XP: ' + (partner.xp || 0),
           inline: true
         });
 
@@ -90,7 +87,7 @@ module.exports = {
               .setCustomId('partner_' + partner.userId)
               .setLabel(displayName.substring(0, 20))
               .setStyle(ButtonStyle.Primary)
-              .setEmoji('💬')
+              .setEmoji('')
           );
           btnCount++;
         }
@@ -108,7 +105,7 @@ module.exports = {
     } catch (error) {
       console.error('Find partner error:', error);
       await interaction.editReply({
-        content: '❌ ' + i18n.get(lang, 'common.error'),
+        content: 'An error occurred while finding partners.',
       });
     }
   }
