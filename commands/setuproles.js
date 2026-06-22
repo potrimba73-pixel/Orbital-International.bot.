@@ -81,24 +81,34 @@ module.exports = {
 
     if (subcommand === 'show') {
       const embed = new EmbedBuilder()
-        .setTitle('⚙️ Server Configuration')
+        .setTitle('Server Configuration')
         .setColor(0x5865F2);
 
       const roles = config.roles || {};
 
-      const nativeRoles = Object.entries(roles.native || {}).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') || 'Not set';
-      const learningRoles = Object.entries(roles.learning || {}).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') || 'Not set';
-      const ageRoles = Object.entries(roles.age || {}).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') || 'Not set';
-      const regionRoles = Object.entries(roles.region || {}).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') || 'Not set';
-      const genderRoles = Object.entries(roles.gender || {}).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') || 'Not set';
+      const nativeRoles = roles.native && roles.native.size > 0 
+        ? Array.from(roles.native.entries()).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') 
+        : 'Not set';
+      const learningRoles = roles.learning && roles.learning.size > 0 
+        ? Array.from(roles.learning.entries()).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') 
+        : 'Not set';
+      const ageRoles = roles.age && roles.age.size > 0 
+        ? Array.from(roles.age.entries()).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') 
+        : 'Not set';
+      const regionRoles = roles.region && roles.region.size > 0 
+        ? Array.from(roles.region.entries()).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') 
+        : 'Not set';
+      const genderRoles = roles.gender && roles.gender.size > 0 
+        ? Array.from(roles.gender.entries()).map(([k, v]) => '<@&' + v + '> (' + k + ')').join('\n') 
+        : 'Not set';
 
       embed.addFields(
-        { name: '🗣️ Native Roles', value: nativeRoles, inline: true },
-        { name: '📚 Learning Roles', value: learningRoles, inline: true },
-        { name: '🎂 Age Roles', value: ageRoles, inline: true },
-        { name: '🌍 Region Roles', value: regionRoles, inline: true },
-        { name: '⚧ Gender Roles', value: genderRoles, inline: true },
-        { name: '👤 Member Role', value: roles.member ? '<@&' + roles.member + '>' : 'Not set', inline: false }
+        { name: 'Native Roles', value: nativeRoles, inline: true },
+        { name: 'Learning Roles', value: learningRoles, inline: true },
+        { name: 'Age Roles', value: ageRoles, inline: true },
+        { name: 'Region Roles', value: regionRoles, inline: true },
+        { name: 'Gender Roles', value: genderRoles, inline: true },
+        { name: 'Member Role', value: roles.member ? '<@&' + roles.member + '>' : 'Not set', inline: false }
       );
 
       return await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
@@ -110,8 +120,12 @@ module.exports = {
       config.roles.member = role.id;
     } else {
       const key = interaction.options.getString('language') || interaction.options.getString('age') || interaction.options.getString('region') || interaction.options.getString('gender');
-      if (!config.roles[subcommand]) config.roles[subcommand] = {};
-      config.roles[subcommand][key] = role.id;
+
+      // Use .set() on the Map to properly store in MongoDB
+      if (!config.roles[subcommand]) {
+        config.roles[subcommand] = new Map();
+      }
+      config.roles[subcommand].set(key, role.id);
     }
 
     config.updatedAt = new Date();
