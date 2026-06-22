@@ -4,7 +4,6 @@ const path = require('path');
 const i18n = require('../utils/i18n');
 const GuildConfig = require('../utils/models/GuildConfig');
 
-// ─── ROLE NAMES (for display only, IDs come from GuildConfig) ───
 const ROLE_NAMES = {
   native: {
     pt: 'Portugues (Portuguese)',
@@ -41,7 +40,6 @@ const ROLE_NAMES = {
   }
 };
 
-// ─── TICKET CONFIG ───
 const TICKET_CATEGORY_ID = '1518043327814041640';
 const STAFF_ROLE_ID = '1515151599503282227';
 const LOGS_CHANNEL_ID = '1515419876859314306';
@@ -60,7 +58,6 @@ const TICKET_ABBREV = {
   other: 'oth'
 };
 
-// ─── LANGUAGE ROLE TO STAFF ACCESS MAP ───
 const LANG_STAFF_ROLES = {
   pt: ['1515151237740498996'],
   en: ['1515151352966156449'],
@@ -69,7 +66,6 @@ const LANG_STAFF_ROLES = {
   fr: ['1515151532704923739']
 };
 
-// ─── TICKET UI TRANSLATIONS ───
 const TICKET_UI = {
   pt: {
     title: 'ORBITAL HUB - TICKET ABERTO',
@@ -192,64 +188,73 @@ const TICKET_UI = {
       '**New Ticket Opened**\n\n**User:** ' + user + '\n**Reason:** ' + TICKET_LABELS[reason] + '\n**Language:** ' + langName
   },
   ru: {
-    title: 'ORBITAL HUB - TIKET OTKRYT',
-    userInfo: 'Informacija o polzovatele',
-    accountAge: 'Akkaunt sozdan',
+    title: 'ORBITAL HUB - ТИКЕТ ОТКРЫТ',
+    userInfo: 'Информация о пользователе',
+    accountAge: 'Аккаунт создан',
     accountAgeFmt: (days) => {
       const y = Math.floor(days / 365);
       const m = Math.floor((days % 365) / 30);
       const d = days % 30;
       let s = [];
-      if (y > 0) s.push(y + ' god' + (y > 1 ? (y > 4 ? 'ov' : 'a') : ''));
-      if (m > 0) s.push(m + ' mesjac' + (m > 1 ? (m > 4 ? 'ev' : 'a') : ''));
-      if (d > 0 || s.length === 0) s.push(d + ' dn' + (d > 1 ? (d > 4 ? 'ej' : 'ja') : 'en'));
-      return s.join(', ') + ' (' + days + ' dnej)';
+      if (y > 0) s.push(y + ' год' + (y > 1 ? (y > 4 ? 'ов' : 'а') : ''));
+      if (m > 0) s.push(m + ' месяц' + (m > 1 ? (m > 4 ? 'ев' : 'а') : ''));
+      if (d > 0 || s.length === 0) s.push(d + ' дн' + (d > 1 ? (d > 4 ? 'ей' : 'я') : 'ень'));
+      return s.join(', ') + ' (' + days + ' дней)';
     },
-    joinedAgo: 'V soobschestve',
+    joinedAgo: 'В сообществе',
     joinedAgoFmt: (days) => {
       const y = Math.floor(days / 365);
       const m = Math.floor((days % 365) / 30);
       const d = days % 30;
       let s = [];
-      if (y > 0) s.push(y + 'g');
-      if (m > 0) s.push(m + 'm');
-      if (d > 0 || s.length === 0) s.push(d + 'd');
+      if (y > 0) s.push(y + 'г');
+      if (m > 0) s.push(m + 'м');
+      if (d > 0 || s.length === 0) s.push(d + 'д');
       return s.join(' ');
     },
-    age: 'Vozrast',
-    gender: 'Pol',
-    notSet: 'Ne ukazano',
-    warning: 'Vazhnoe preduprezhdenie',
-    warningText: 'Otkrytie troll-tiketov ili lozhnye zhaloby, chtoby bespokoit Staff, privedut k nemedlennomu Mute ili Kick.',
+    age: 'Возраст',
+    gender: 'Пол',
+    notSet: 'Не указано',
+    warning: 'Важное предупреждение',
+    warningText: 'Открытие тролль-тикетов или ложные жалобы, чтобы беспокоить Staff, приведут к немедленному Mute или Kick.',
     desc: (member, reason, langName) =>
-      'Dobro pozhalovat v podderzhku, ' + member + '!\n\n**Prichina:** ' + TICKET_LABELS[reason] + '\n**Jazyk:** ' + langName + '\n\nStaff skoro budet uvedomlen. Pozhalujsta, opishi svoju problemu chetko.',
+      'Добро пожаловать в поддержку, ' + member + '!
+
+**Причина:** ' + TICKET_LABELS[reason] + '
+**Язык:** ' + langName + '
+
+Staff скоро будет уведомлен. Пожалуйста, опиши свою проблему четко.',
     staffMention: (staffList) => '**Staff:** ' + staffList,
-    closeBtn: 'Zakryt tiket',
-    transcriptBtn: 'Transkript',
-    claimBtn: 'Vzjat',
-    unclaimBtn: 'Otpustit',
-    notTicket: 'Eta komanda rabotaet tolko v kanale tiketa.',
-    closeMsg: 'Zakrytie tiketa i generacija transkripta...',
-    transcriptTitle: 'TRANSKRIPT TIKETA',
-    channel: 'Kanal',
-    closedBy: 'Zakryto',
-    date: 'Data',
-    messages: 'Soobschenija',
-    end: 'KONEC TRANSKRIPTA',
-    htmlTitle: 'Orbital International - Transkript',
-    existing: (ch) => 'U tebja uzhe est otkrytyj tiket: ' + ch,
-    errorClose: 'Oshibka pri zakrytii tiketa.',
-    closeReason: 'Prichina zakrytija',
-    closeReasonPlaceholder: 'Neobjazatelno: prichina zakrytija...',
-    closeReasonLabel: 'Prichina',
-    closeModalTitle: 'Zakryt tiket',
-    claimMsg: (user) => user + ' vzjal etot tiket.',
-    unclaimMsg: (user) => user + ' otpustil etot tiket.',
-    alreadyClaimed: 'Etot tiket uzhe vzjat drugim chlenom Staff.',
-    notClaimed: 'Etot tiket eshche ne vzjat.',
-    notStaff: 'Tolko Staff mozhet ispolzovat etu knopku.',
+    closeBtn: 'Закрыть тикет',
+    transcriptBtn: 'Транскрипт',
+    claimBtn: 'Взять',
+    unclaimBtn: 'Отпустить',
+    notTicket: 'Эта команда работает только в канале тикета.',
+    closeMsg: 'Закрытие тикета и генерация транскрипта...',
+    transcriptTitle: 'ТРАНСКРИПТ ТИКЕТА',
+    channel: 'Канал',
+    closedBy: 'Закрыто',
+    date: 'Дата',
+    messages: 'Сообщения',
+    end: 'КОНЕЦ ТРАНСКРИПТА',
+    htmlTitle: 'Orbital International - Транскрипт',
+    existing: (ch) => 'У тебя уже есть открытый тикет: ' + ch,
+    errorClose: 'Ошибка при закрытии тикета.',
+    closeReason: 'Причина закрытия',
+    closeReasonPlaceholder: 'Необязательно: причина закрытия...',
+    closeReasonLabel: 'Причина',
+    closeModalTitle: 'Закрыть тикет',
+    claimMsg: (user) => user + ' взял этот тикет.',
+    unclaimMsg: (user) => user + ' отпустил этот тикет.',
+    alreadyClaimed: 'Этот тикет уже взят другим членом Staff.',
+    notClaimed: 'Этот тикет ещё не взят.',
+    notStaff: 'Только Staff может использовать эту кнопку.',
     ticketOpened: (user, reason, langName) =>
-      '**Otkryt novyj tiket**\n\n**Polzovatel:** ' + user + '\n**Prichina:** ' + TICKET_LABELS[reason] + '\n**Jazyk:** ' + langName
+      '**Открыт новый тикет**
+
+**Пользователь:** ' + user + '
+**Причина:** ' + TICKET_LABELS[reason] + '
+**Язык:** ' + langName
   },
   es: {
     title: 'ORBITAL HUB - TICKET ABIERTO',
@@ -260,10 +265,10 @@ const TICKET_UI = {
       const m = Math.floor((days % 365) / 30);
       const d = days % 30;
       let s = [];
-      if (y > 0) s.push(y + ' año' + (y > 1 ? 's' : ''));
+      if (y > 0) s.push(y + ' ano' + (y > 1 ? 's' : ''));
       if (m > 0) s.push(m + ' mes' + (m > 1 ? 'es' : ''));
-      if (d > 0 || s.length === 0) s.push(d + ' día' + (d > 1 ? 's' : ''));
-      return s.join(', ') + ' (' + days + ' días)';
+      if (d > 0 || s.length === 0) s.push(d + ' dia' + (d > 1 ? 's' : ''));
+      return s.join(', ') + ' (' + days + ' dias)';
     },
     joinedAgo: 'En la comunidad desde hace',
     joinedAgoFmt: (days) => {
@@ -373,17 +378,23 @@ const TICKET_UI = {
   }
 };
 
-// ─── LOG MESSAGES ───
 const LOG_MSG = {
-  created: (ch, user, reason) => '**Ticket Created**\nChannel: ' + ch + '\nUser: ' + user + '\nReason: ' + reason,
-  closed: (ch, user, count, reason) => '**Ticket Closed**\nChannel: ' + ch + '\nClosed by: ' + user + '\nMessages: ' + count + (reason ? '\nReason: ' + reason : ''),
-  claimed: (ch, user) => '**Ticket Claimed**\nChannel: ' + ch + '\nBy: ' + user,
-  unclaimed: (ch, user) => '**Ticket Unclaimed**\nChannel: ' + ch + '\nBy: ' + user
+  created: (ch, user, reason) => '**Ticket Created**
+Channel: ' + ch + '
+User: ' + user + '
+Reason: ' + reason,
+  closed: (ch, user, count, reason) => '**Ticket Closed**
+Channel: ' + ch + '
+Closed by: ' + user + '
+Messages: ' + count + (reason ? '
+Reason: ' + reason : ''),
+  claimed: (ch, user) => '**Ticket Claimed**
+Channel: ' + ch + '
+By: ' + user,
+  unclaimed: (ch, user) => '**Ticket Unclaimed**
+Channel: ' + ch + '
+By: ' + user
 };
-
-// ═══════════════════════════════════════════════════════════════
-// MAIN HANDLER
-// ═══════════════════════════════════════════════════════════════
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -409,7 +420,6 @@ module.exports = {
 
     const customId = interaction.customId;
 
-    // ─── CONFIGME HANDLERS ───
     if (customId === 'configme_native') {
       return await handleConfigmeNative(interaction, client);
     }
@@ -426,17 +436,14 @@ module.exports = {
       return await handleConfigmeGender(interaction, client);
     }
 
-    // ─── ONBOARDING HANDLERS ───
     if (customId.startsWith('onboarding_')) {
       return await handleOnboarding(interaction);
     }
 
-    // ─── VERIFICATION ───
     if (customId === 'verify_member') {
       return await handleVerification(interaction);
     }
 
-    // ─── TICKET CREATE ───
     if (customId === 'ticket_create') {
       return await handleTicketLanguageSelect(interaction, client);
     }
@@ -444,7 +451,6 @@ module.exports = {
       return await handleTicketCreate(interaction, client);
     }
 
-    // ─── TICKET BUTTONS ───
     if (customId === 'ticket_close') {
       return await handleTicketCloseModal(interaction, client);
     }
@@ -458,16 +464,11 @@ module.exports = {
       return await handleTicketTranscript(interaction, client);
     }
 
-    // ─── MODAL SUBMITS ───
     if (customId === 'close_ticket_modal') {
       return await handleTicketClose(interaction, client);
     }
   }
 };
-
-// ═══════════════════════════════════════════════════════════════
-// HELPER: Get Role IDs from GuildConfig
-// ═══════════════════════════════════════════════════════════════
 
 async function getRoleIds(guildId) {
   const config = await GuildConfig.findOne({ guildId });
@@ -482,7 +483,6 @@ async function getRoleIds(guildId) {
     member: config.roles.member || ''
   };
 
-  // Handle both Map (from Mongoose) and plain object
   const extract = (mapOrObj) => {
     if (!mapOrObj) return {};
     if (mapOrObj instanceof Map || (typeof mapOrObj.entries === 'function')) {
@@ -501,10 +501,6 @@ async function getRoleIds(guildId) {
 
   return roles;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// CONFIGME HANDLERS
-// ═══════════════════════════════════════════════════════════════
 
 async function handleConfigmeNative(interaction, client) {
   const nativeLang = interaction.values[0];
@@ -535,11 +531,11 @@ async function handleConfigmeNative(interaction, client) {
       .setCustomId('configme_learning')
       .setPlaceholder(i18n.get(lang, 'configme.learning_placeholder'))
       .addOptions([
-        { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: '🇵🇹' } },
-        { label: 'English', value: 'en', description: 'English', emoji: { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' } },
-        { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: '🇷🇺' } },
-        { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: '🇪🇸' } },
-        { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: '🇫🇷' } }
+        { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: 'PT' } },
+        { label: 'English', value: 'en', description: 'English', emoji: { name: 'EN' } },
+        { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: 'RU' } },
+        { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: 'ES' } },
+        { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: 'FR' } }
       ])
   );
 
@@ -579,10 +575,10 @@ async function handleConfigmeLearning(interaction, client) {
       .setCustomId('configme_age')
       .setPlaceholder(i18n.get(lang, 'configme.age_placeholder'))
       .addOptions([
-        { label: '11-13 years', value: '11-13', description: '11-13 years old', emoji: { name: '🟢' } },
-        { label: '14-16 years', value: '14-16', description: '14-16 years old', emoji: { name: '🟡' } },
-        { label: '17-19 years', value: '17-19', description: '17-19 years old', emoji: { name: '🔵' } },
-        { label: '20-22 years', value: '20-22', description: '20-22 years old', emoji: { name: '🟣' } }
+        { label: '11-13 years', value: '11-13', description: '11-13 years old', emoji: { name: '11' } },
+        { label: '14-16 years', value: '14-16', description: '14-16 years old', emoji: { name: '14' } },
+        { label: '17-19 years', value: '17-19', description: '17-19 years old', emoji: { name: '17' } },
+        { label: '20-22 years', value: '20-22', description: '20-22 years old', emoji: { name: '20' } }
       ])
   );
 
@@ -622,12 +618,12 @@ async function handleConfigmeAge(interaction, client) {
       .setCustomId('configme_region')
       .setPlaceholder(i18n.get(lang, 'configme.region_placeholder'))
       .addOptions([
-        { label: 'Europe', value: 'europe', description: 'Europe', emoji: { name: '🇪🇺' } },
-        { label: 'North America', value: 'north_america', description: 'North America', emoji: { name: '🌎' } },
-        { label: 'South America', value: 'south_america', description: 'South America', emoji: { name: '🌎' } },
-        { label: 'Eastern Europe / CIS', value: 'eastern_europe', description: 'Eastern Europe / CIS', emoji: { name: '🇷🇺' } },
-        { label: 'Africa & Middle East', value: 'africa_me', description: 'Africa & Middle East', emoji: { name: '🌍' } },
-        { label: 'Asia & Oceania', value: 'asia_oceania', description: 'Asia & Oceania', emoji: { name: '🌏' } }
+        { label: 'Europe', value: 'europe', description: 'Europe', emoji: { name: 'EU' } },
+        { label: 'North America', value: 'north_america', description: 'North America', emoji: { name: 'NA' } },
+        { label: 'South America', value: 'south_america', description: 'South America', emoji: { name: 'SA' } },
+        { label: 'Eastern Europe / CIS', value: 'eastern_europe', description: 'Eastern Europe / CIS', emoji: { name: 'EE' } },
+        { label: 'Africa & Middle East', value: 'africa_me', description: 'Africa & Middle East', emoji: { name: 'AF' } },
+        { label: 'Asia & Oceania', value: 'asia_oceania', description: 'Asia & Oceania', emoji: { name: 'AS' } }
       ])
   );
 
@@ -667,9 +663,9 @@ async function handleConfigmeRegion(interaction, client) {
       .setCustomId('configme_gender')
       .setPlaceholder(i18n.get(lang, 'configme.gender_placeholder'))
       .addOptions([
-        { label: 'Male', value: 'male', description: 'Male', emoji: { name: '♂️' } },
-        { label: 'Female', value: 'female', description: 'Female', emoji: { name: '♀️' } },
-        { label: 'Other', value: 'other', description: 'Other', emoji: { name: '⚧' } }
+        { label: 'Male', value: 'male', description: 'Male', emoji: { name: 'M' } },
+        { label: 'Female', value: 'female', description: 'Female', emoji: { name: 'F' } },
+        { label: 'Other', value: 'other', description: 'Other', emoji: { name: 'O' } }
       ])
   );
 
@@ -745,10 +741,6 @@ async function handleConfigmeGender(interaction, client) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ONBOARDING HANDLER
-// ═══════════════════════════════════════════════════════════════
-
 async function handleOnboarding(interaction) {
   const member = interaction.member;
   const type = interaction.customId.replace('onboarding_', '');
@@ -803,11 +795,11 @@ async function handleOnboarding(interaction) {
   }
 
   let emoji = '';
-  if (type === 'speak') emoji = '🗣️ ';
-  if (type === 'learn') emoji = '📚 ';
-  if (type === 'region') emoji = '🌍 ';
-  if (type === 'age') emoji = '🎂 ';
-  if (type === 'gender') emoji = '⚧️ ';
+  if (type === 'speak') emoji = '';
+  if (type === 'learn') emoji = '';
+  if (type === 'region') emoji = '';
+  if (type === 'age') emoji = '';
+  if (type === 'gender') emoji = '';
 
   const label = type === 'speak' ? 'Languages you speak' :
                 type === 'learn' ? 'Languages you want to learn' :
@@ -816,14 +808,10 @@ async function handleOnboarding(interaction) {
 
   await interaction.reply({
     content: emoji + '**' + label + '** updated:
-' + added.map(a => '• ' + a).join('\n'),
+' + added.map(a => '\u2022 ' + a).join('\n'),
     flags: MessageFlags.Ephemeral
   });
 }
-
-// ═══════════════════════════════════════════════════════════════
-// VERIFICATION HANDLER
-// ═══════════════════════════════════════════════════════════════
 
 async function handleVerification(interaction) {
   const ROLE_IDS = await getRoleIds(interaction.guild.id);
@@ -858,10 +846,6 @@ async function handleVerification(interaction) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// TICKET HANDLERS
-// ═══════════════════════════════════════════════════════════════
-
 async function handleTicketLanguageSelect(interaction, client) {
   const lang = await i18n.getUserLang(interaction.user.id);
 
@@ -870,10 +854,10 @@ async function handleTicketLanguageSelect(interaction, client) {
       .setCustomId('ticket_reason_select')
       .setPlaceholder('Select ticket reason')
       .addOptions([
-        { label: 'General Support', value: 'general', emoji: '👤' },
-        { label: 'Report User', value: 'report', emoji: '🛡️' },
-        { label: 'Language Help', value: 'language', emoji: '🌍' },
-        { label: 'Other / Partnership', value: 'other', emoji: '🛸' }
+        { label: 'General Support', value: 'general', emoji: '' },
+        { label: 'Report User', value: 'report', emoji: '' },
+        { label: 'Language Help', value: 'language', emoji: '' },
+        { label: 'Other / Partnership', value: 'other', emoji: '' }
       ])
   );
 
@@ -948,9 +932,9 @@ async function handleTicketCreate(interaction, client) {
     .setTimestamp();
 
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId('ticket_close').setLabel(t.closeBtn).setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-    new ButtonBuilder().setCustomId('ticket_transcript').setLabel(t.transcriptBtn).setStyle(ButtonStyle.Secondary).setEmoji('📄'),
-    new ButtonBuilder().setCustomId('ticket_claim').setLabel(t.claimBtn).setStyle(ButtonStyle.Primary).setEmoji('✋')
+    new ButtonBuilder().setCustomId('ticket_close').setLabel(t.closeBtn).setStyle(ButtonStyle.Danger).setEmoji(''),
+    new ButtonBuilder().setCustomId('ticket_transcript').setLabel(t.transcriptBtn).setStyle(ButtonStyle.Secondary).setEmoji(''),
+    new ButtonBuilder().setCustomId('ticket_claim').setLabel(t.claimBtn).setStyle(ButtonStyle.Primary).setEmoji('')
   );
 
   await channel.send({
@@ -965,7 +949,6 @@ async function handleTicketCreate(interaction, client) {
     flags: MessageFlags.Ephemeral
   });
 
-  // Log
   const logsChannel = interaction.guild.channels.cache.get(LOGS_CHANNEL_ID);
   if (logsChannel) {
     await logsChannel.send(LOG_MSG.created(channel.toString(), member.toString(), TICKET_LABELS[reason]));
@@ -1002,7 +985,6 @@ async function handleTicketClose(interaction, client) {
 
   await interaction.reply({ content: t.closeMsg });
 
-  // Generate transcript
   const messages = [];
   let lastId;
   while (true) {
@@ -1062,9 +1044,9 @@ async function handleTicketClaim(interaction, client) {
   await channel.setTopic('Claimed by: ' + interaction.user.id);
 
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId('ticket_close').setLabel(t.closeBtn).setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-    new ButtonBuilder().setCustomId('ticket_transcript').setLabel(t.transcriptBtn).setStyle(ButtonStyle.Secondary).setEmoji('📄'),
-    new ButtonBuilder().setCustomId('ticket_unclaim').setLabel(t.unclaimBtn).setStyle(ButtonStyle.Primary).setEmoji('🔓')
+    new ButtonBuilder().setCustomId('ticket_close').setLabel(t.closeBtn).setStyle(ButtonStyle.Danger).setEmoji(''),
+    new ButtonBuilder().setCustomId('ticket_transcript').setLabel(t.transcriptBtn).setStyle(ButtonStyle.Secondary).setEmoji(''),
+    new ButtonBuilder().setCustomId('ticket_unclaim').setLabel(t.unclaimBtn).setStyle(ButtonStyle.Primary).setEmoji('')
   );
 
   await interaction.update({ components: [row] });
@@ -1097,9 +1079,9 @@ async function handleTicketUnclaim(interaction, client) {
   await channel.setTopic('');
 
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId('ticket_close').setLabel(t.closeBtn).setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-    new ButtonBuilder().setCustomId('ticket_transcript').setLabel(t.transcriptBtn).setStyle(ButtonStyle.Secondary).setEmoji('📄'),
-    new ButtonBuilder().setCustomId('ticket_claim').setLabel(t.claimBtn).setStyle(ButtonStyle.Primary).setEmoji('✋')
+    new ButtonBuilder().setCustomId('ticket_close').setLabel(t.closeBtn).setStyle(ButtonStyle.Danger).setEmoji(''),
+    new ButtonBuilder().setCustomId('ticket_transcript').setLabel(t.transcriptBtn).setStyle(ButtonStyle.Secondary).setEmoji(''),
+    new ButtonBuilder().setCustomId('ticket_claim').setLabel(t.claimBtn).setStyle(ButtonStyle.Primary).setEmoji('')
   );
 
   await interaction.update({ components: [row] });
