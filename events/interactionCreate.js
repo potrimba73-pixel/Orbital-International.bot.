@@ -1,6 +1,7 @@
 const { Events, InteractionType, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits, AttachmentBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const i18n = require('../utils/i18n');
 
 // ─── ROLE IDs ───
 const ROLE_IDS = {
@@ -380,20 +381,46 @@ module.exports = {
         await command.execute(interaction, client);
       } catch (error) {
         console.error(`Error executing ${interaction.commandName}:`, error);
+        const lang = await i18n.getUserLang(interaction.user.id);
         if (interaction.replied || interaction.deferred) {
-          await interaction.followUp({ content: 'There was an error executing this command!', flags: MessageFlags.Ephemeral }).catch(() => {});
+          await interaction.followUp({ content: '❌ ' + i18n.get(lang, 'common.error'), flags: MessageFlags.Ephemeral }).catch(() => {});
         } else {
-          await interaction.reply({ content: 'There was an error executing this command!', flags: MessageFlags.Ephemeral }).catch(() => {});
+          await interaction.reply({ content: '❌ ' + i18n.get(lang, 'common.error'), flags: MessageFlags.Ephemeral }).catch(() => {});
         }
       }
     }
 
     // ─── SELECT MENUS ───
     if (interaction.isStringSelectMenu()) {
+      // ─── CONFIGME FLOW (5 STEPS) ───
+      if (interaction.customId === 'configme_native') {
+        await handleConfigmeNative(interaction, client);
+        return;
+      }
+      if (interaction.customId === 'configme_learning') {
+        await handleConfigmeLearning(interaction, client);
+        return;
+      }
+      if (interaction.customId === 'configme_age') {
+        await handleConfigmeAge(interaction, client);
+        return;
+      }
+      if (interaction.customId === 'configme_region') {
+        await handleConfigmeRegion(interaction, client);
+        return;
+      }
+      if (interaction.customId === 'configme_gender') {
+        await handleConfigmeGender(interaction, client);
+        return;
+      }
+
+      // ─── ONBOARDING ───
       if (interaction.customId.startsWith('onboarding_')) {
         await handleOnboarding(interaction);
         return;
       }
+
+      // ─── TICKETS ───
       if (interaction.customId === 'ticket_create') {
         await handleTicketLanguageSelect(interaction, client);
         return;
@@ -445,7 +472,209 @@ module.exports = {
   }
 };
 
-// ─── ONBOARDING HANDLER ───
+// ═══════════════════════════════════════════════════════════════
+// CONFIGME HANDLERS (5 STEPS)
+// ═══════════════════════════════════════════════════════════════
+
+async function handleConfigmeNative(interaction, client) {
+  const nativeLang = interaction.values[0];
+  const nativeRoleId = ROLE_IDS.native[nativeLang];
+  const lang = await i18n.getUserLang(interaction.user.id);
+
+  if (!client.configmeTemp) client.configmeTemp = new Map();
+  client.configmeTemp.set(interaction.user.id, { nativeLanguage: nativeLang });
+
+  try {
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (nativeRoleId) await member.roles.add(nativeRoleId);
+  } catch (e) {
+    console.error('Erro ao atribuir cargo nativo:', e);
+  }
+
+  const menu = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('configme_learning')
+      .setPlaceholder(i18n.get(lang, 'configme.learning_placeholder'))
+      .addOptions([
+        { label: 'Portugues (Portuguese)', value: 'pt', description: 'Portugues', emoji: { name: '🇵🇹' } },
+        { label: 'English', value: 'en', description: 'English', emoji: { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' } },
+        { label: 'Russkij (Russian)', value: 'ru', description: 'Russkij', emoji: { name: '🇷🇺' } },
+        { label: 'Espanol (Spanish)', value: 'es', description: 'Espanol', emoji: { name: '🇪🇸' } },
+        { label: 'Francais (French)', value: 'fr', description: 'Francais', emoji: { name: '🇫🇷' } }
+      ])
+  );
+
+  await interaction.update({
+    content: i18n.get(lang, 'configme.step2'),
+    components: [menu]
+  });
+}
+
+async function handleConfigmeLearning(interaction, client) {
+  const learningLang = interaction.values[0];
+  const learningRoleId = ROLE_IDS.learning[learningLang];
+  const lang = await i18n.getUserLang(interaction.user.id);
+
+  const temp = client.configmeTemp?.get(interaction.user.id) || {};
+  temp.learningLanguage = learningLang;
+  client.configmeTemp.set(interaction.user.id, temp);
+
+  try {
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (learningRoleId) await member.roles.add(learningRoleId);
+  } catch (e) {
+    console.error('Erro ao atribuir cargo learning:', e);
+  }
+
+  const menu = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('configme_age')
+      .setPlaceholder(i18n.get(lang, 'configme.age_placeholder'))
+      .addOptions([
+        { label: '11-13 years', value: '11-13', description: '11-13 years old', emoji: { name: '🟢' } },
+        { label: '14-16 years', value: '14-16', description: '14-16 years old', emoji: { name: '🟡' } },
+        { label: '17-19 years', value: '17-19', description: '17-19 years old', emoji: { name: '🔵' } },
+        { label: '20-22 years', value: '20-22', description: '20-22 years old', emoji: { name: '🟣' } }
+      ])
+  );
+
+  await interaction.update({
+    content: i18n.get(lang, 'configme.step3'),
+    components: [menu]
+  });
+}
+
+async function handleConfigmeAge(interaction, client) {
+  const ageValue = interaction.values[0];
+  const ageRoleId = ROLE_IDS.age[ageValue];
+  const lang = await i18n.getUserLang(interaction.user.id);
+
+  const temp = client.configmeTemp?.get(interaction.user.id) || {};
+  temp.age = ageValue;
+  client.configmeTemp.set(interaction.user.id, temp);
+
+  try {
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (ageRoleId) await member.roles.add(ageRoleId);
+  } catch (e) {
+    console.error('Erro ao atribuir cargo age:', e);
+  }
+
+  const menu = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('configme_region')
+      .setPlaceholder(i18n.get(lang, 'configme.region_placeholder'))
+      .addOptions([
+        { label: 'Europe', value: 'europe', description: 'Europe', emoji: { name: '🇪🇺' } },
+        { label: 'North America', value: 'north_america', description: 'North America', emoji: { name: '🌎' } },
+        { label: 'South America', value: 'south_america', description: 'South America', emoji: { name: '🌎' } },
+        { label: 'Eastern Europe / CIS', value: 'eastern_europe', description: 'Eastern Europe / CIS', emoji: { name: '🇷🇺' } },
+        { label: 'Africa & Middle East', value: 'africa_me', description: 'Africa & Middle East', emoji: { name: '🌍' } },
+        { label: 'Asia & Oceania', value: 'asia_oceania', description: 'Asia & Oceania', emoji: { name: '🌏' } }
+      ])
+  );
+
+  await interaction.update({
+    content: i18n.get(lang, 'configme.step4'),
+    components: [menu]
+  });
+}
+
+async function handleConfigmeRegion(interaction, client) {
+  const regionValue = interaction.values[0];
+  const regionRoleId = ROLE_IDS.region[regionValue];
+  const lang = await i18n.getUserLang(interaction.user.id);
+
+  const temp = client.configmeTemp?.get(interaction.user.id) || {};
+  temp.region = regionValue;
+  client.configmeTemp.set(interaction.user.id, temp);
+
+  try {
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (regionRoleId) await member.roles.add(regionRoleId);
+  } catch (e) {
+    console.error('Erro ao atribuir cargo region:', e);
+  }
+
+  const menu = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('configme_gender')
+      .setPlaceholder(i18n.get(lang, 'configme.gender_placeholder'))
+      .addOptions([
+        { label: 'Male', value: 'male', description: 'Male', emoji: { name: '♂️' } },
+        { label: 'Female', value: 'female', description: 'Female', emoji: { name: '♀️' } },
+        { label: 'Other', value: 'other', description: 'Other', emoji: { name: '⚧' } }
+      ])
+  );
+
+  await interaction.update({
+    content: i18n.get(lang, 'configme.step5'),
+    components: [menu]
+  });
+}
+
+async function handleConfigmeGender(interaction, client) {
+  const genderValue = interaction.values[0];
+  const genderRoleId = ROLE_IDS.gender[genderValue];
+  const lang = await i18n.getUserLang(interaction.user.id);
+
+  const temp = client.configmeTemp?.get(interaction.user.id) || {};
+  temp.gender = genderValue;
+
+  try {
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (genderRoleId) await member.roles.add(genderRoleId);
+    if (ROLE_IDS.member) await member.roles.add(ROLE_IDS.member);
+  } catch (e) {
+    console.error('Erro ao atribuir cargos finais:', e);
+  }
+
+  // Guarda no MongoDB
+  try {
+    const UserProfile = require('../utils/models/UserProfile');
+    await UserProfile.findOneAndUpdate(
+      { userId: interaction.user.id },
+      {
+        userId: interaction.user.id,
+        nativeLanguage: temp.nativeLanguage,
+        learningLanguage: temp.learningLanguage,
+        age: temp.age,
+        region: temp.region,
+        gender: temp.gender,
+        level: 1,
+        xp: 0,
+        messagesSent: 0,
+        voiceMinutes: 0
+      },
+      { upsert: true, new: true }
+    );
+  } catch (e) {
+    console.error('Erro ao guardar perfil:', e);
+  }
+
+  client.configmeTemp.delete(interaction.user.id);
+
+  const embed = new EmbedBuilder()
+    .setTitle(i18n.get(lang, 'configme.welcome_title'))
+    .setDescription(i18n.get(lang, 'configme.welcome_desc'))
+    .setColor(0x57F287)
+    .addFields(
+      { name: '🗣️ ' + i18n.get(lang, 'mystats.native'), value: (temp.nativeLanguage || 'EN').toUpperCase(), inline: true },
+      { name: '📚 ' + i18n.get(lang, 'mystats.learning'), value: (temp.learningLanguage || 'PT').toUpperCase(), inline: true },
+      { name: '🎂 Age', value: temp.age || '?', inline: true }
+    );
+
+  await interaction.update({
+    content: i18n.get(lang, 'configme.completed'),
+    components: [],
+    embeds: [embed]
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ONBOARDING HANDLER
+// ═══════════════════════════════════════════════════════════════
+
 async function handleOnboarding(interaction) {
   const member = interaction.member;
   const type = interaction.customId.replace('onboarding_', '');
@@ -508,7 +737,10 @@ async function handleOnboarding(interaction) {
   });
 }
 
-// ─── TICKET LANGUAGE SELECTION ───
+// ═══════════════════════════════════════════════════════════════
+// TICKET HANDLERS
+// ═══════════════════════════════════════════════════════════════
+
 async function handleTicketLanguageSelect(interaction, client) {
   const member = interaction.member;
   const reason = interaction.values[0];
@@ -520,7 +752,6 @@ async function handleTicketLanguageSelect(interaction, client) {
     }
   }
 
-  // Se o utilizador nao tem nenhum role de lingua, mostra TODAS as 5 linguas
   if (userLanguages.length === 0) {
     userLanguages.push(
       { value: 'pt', label: '🇵🇹 Português (Portuguese)', emoji: '🇵🇹' },
@@ -567,7 +798,6 @@ function getLangEmoji(lang) {
   return emojis[lang] || '🌐';
 }
 
-// ─── TICKET CREATE HANDLER ───
 async function handleTicketCreate(interaction, client) {
   const member = interaction.member;
   const selectedValue = interaction.values[0];
@@ -665,7 +895,6 @@ async function handleTicketCreate(interaction, client) {
       components: [closeRow]
     });
 
-    // Reply with redirect button to ticket
     const redirectRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel(`🔗 ${language.toUpperCase()} Ticket`)
@@ -679,7 +908,6 @@ async function handleTicketCreate(interaction, client) {
       components: [redirectRow]
     });
 
-    // Log: Ticket Created (always in English)
     const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
     if (logsChannel) {
       const logEmbed = new EmbedBuilder()
@@ -707,7 +935,6 @@ async function handleTicketCreate(interaction, client) {
   }
 }
 
-// ─── TICKET CLAIM HANDLER ───
 async function handleTicketClaim(interaction, client) {
   const channel = interaction.channel;
   const staff = interaction.member;
@@ -752,7 +979,6 @@ async function handleTicketClaim(interaction, client) {
     content: t.claimMsg(staff, openerMention)
   });
 
-  // Log: Ticket Claimed (always in English)
   const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
   if (logsChannel && opener) {
     const member = await channel.guild.members.fetch(opener.id).catch(() => null);
@@ -776,7 +1002,6 @@ async function handleTicketClaim(interaction, client) {
   }
 }
 
-// ─── TICKET CLOSE HANDLER ───
 async function handleTicketClose(interaction, client, closeReason = null) {
   const channel = interaction.channel;
   const member = interaction.member;
@@ -814,7 +1039,6 @@ async function handleTicketClose(interaction, client, closeReason = null) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const baseFileName = `${ticketName}_${timestamp}`;
 
-    // ─── GENERATE TXT TRANSCRIPT ───
     let txtContent = `========================================\n`;
     txtContent += `${t.transcriptTitle}\n`;
     txtContent += `========================================\n`;
@@ -840,7 +1064,6 @@ async function handleTicketClose(interaction, client, closeReason = null) {
     txtContent += `${t.end}\n`;
     txtContent += `========================================\n`;
 
-    // ─── GENERATE HTML TRANSCRIPT ───
     let htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -926,7 +1149,6 @@ async function handleTicketClose(interaction, client, closeReason = null) {
     const txtAttachment = new AttachmentBuilder(txtPath, { name: `${baseFileName}.txt` });
     const htmlAttachment = new AttachmentBuilder(htmlPath, { name: `${baseFileName}.html` });
 
-    // Log: Ticket Closed with Transcript (always in English)
     const logsChannel = await client.channels.fetch(LOGS_CHANNEL_ID).catch(() => null);
     if (logsChannel) {
       const logEmbed = new EmbedBuilder()
@@ -970,7 +1192,10 @@ function escapeHtml(text) {
     .replace(/'/g, '&#039;');
 }
 
-// ─── VERIFICATION HANDLER ───
+// ═══════════════════════════════════════════════════════════════
+// VERIFICATION HANDLER
+// ═══════════════════════════════════════════════════════════════
+
 async function handleVerification(interaction) {
   const memberRoleId = ROLE_IDS.member;
 
